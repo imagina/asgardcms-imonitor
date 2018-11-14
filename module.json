@@ -1,0 +1,17 @@
+{
+    "name": "Imonitor",
+    "alias": "imonitor",
+    "description": "",
+    "keywords": [],
+    "active": 1,
+    "order": 1,
+    "providers": [
+        "Modules\\Imonitor\\Providers\\ImonitorServiceProvider",
+        "Modules\\Imonitor\\Providers\\RouteServiceProvider"
+    ],
+    "aliases": {},
+    "files": [
+        
+    ],
+    "requires": []
+}
