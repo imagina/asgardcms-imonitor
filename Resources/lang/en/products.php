@@ -14,8 +14,15 @@ return [
         'create product' => 'Create a product',
     ],
     'table' => [
+        'id'=>'Id',
+        'title'=>'Title',
+        'user_id'=>'User',
+
     ],
     'form' => [
+        'title'=>'Title',
+        'description'=>'Description',
+        'address'=>'Address'
     ],
     'messages' => [
     ],

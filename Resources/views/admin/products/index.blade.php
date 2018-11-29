@@ -29,14 +29,32 @@
                         <table class="data-table table table-bordered table-hover">
                             <thead>
                             <tr>
+                                <th>{{ trans('imonitor::products.table.id') }}</th>
+                                <th>{{ trans('imonitor::products.table.title') }}</th>
+                              {{--  <th>{{ trans('imonitor::products.table.user_id') }}</th>--}}
                                 <th>{{ trans('core::core.table.created at') }}</th>
                                 <th data-sortable="false">{{ trans('core::core.table.actions') }}</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (isset($products)): ?>
-                            <?php foreach ($products as $product): ?>
+                            @if (isset($products))
+                            @foreach ($products as $product)
                             <tr>
+                                <td>
+                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
+                                        {{ $product->id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
+                                        {{ $product->title }}
+                                    </a>
+                                </td>
+                                {{--<td>
+                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
+                                        {{ $product->email}}
+                                    </a>
+                                </td>--}}
                                 <td>
                                     <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
                                         {{ $product->created_at }}
@@ -49,11 +67,14 @@
                                     </div>
                                 </td>
                             </tr>
-                            <?php endforeach; ?>
-                            <?php endif; ?>
+                            @endforeach
+                            @endif
                             </tbody>
                             <tfoot>
                             <tr>
+                                <th>{{ trans('imonitor::products.table.id') }}</th>
+                                <th>{{ trans('imonitor::products.table.title') }}</th>
+                               {{-- <th>{{ trans('imonitor::products.table.user_id') }}</th>--}}
                                 <th>{{ trans('core::core.table.created at') }}</th>
                                 <th>{{ trans('core::core.table.actions') }}</th>
                             </tr>

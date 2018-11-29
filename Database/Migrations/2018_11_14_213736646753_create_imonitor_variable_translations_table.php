@@ -15,6 +15,8 @@ class CreateImonitorVariableTranslationsTable extends Migration
         Schema::create('imonitor__variable_translations', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
+            $table->string('title');
+            $table->text('description');
             // Your translatable fields
 
             $table->integer('variable_id')->unsigned();

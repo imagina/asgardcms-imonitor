@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class VariableTranslation extends Model
 {
     public $timestamps = false;
-    protected $fillable = [];
+    protected $fillable = ['title','description'];
     protected $table = 'imonitor__variable_translations';
 }

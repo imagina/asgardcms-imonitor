@@ -15,6 +15,9 @@ class CreateImonitorProductTranslationsTable extends Migration
         Schema::create('imonitor__product_translations', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
+            $table->text('title');
+            $table->text('description');
+            
             // Your translatable fields
 
             $table->integer('product_id')->unsigned();

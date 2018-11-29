@@ -29,14 +29,26 @@
                         <table class="data-table table table-bordered table-hover">
                             <thead>
                             <tr>
+                                <th>{{ trans('imonitor::variables.table.id') }}</th>
+                                <th>{{ trans('imonitor::variables.table.title') }}</th>
                                 <th>{{ trans('core::core.table.created at') }}</th>
                                 <th data-sortable="false">{{ trans('core::core.table.actions') }}</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (isset($variables)): ?>
-                            <?php foreach ($variables as $variable): ?>
+                            @if (isset($variables))
+                            @foreach ($variables as $variable)
                             <tr>
+                                <td>
+                                    <a href="{{ route('admin.imonitor.variable.edit', [$variable->id]) }}">
+                                        {{ $variable->id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{ route('admin.imonitor.variable.edit', [$variable->id]) }}">
+                                        {{ $variable->title }}
+                                    </a>
+                                </td>
                                 <td>
                                     <a href="{{ route('admin.imonitor.variable.edit', [$variable->id]) }}">
                                         {{ $variable->created_at }}
@@ -49,11 +61,13 @@
                                     </div>
                                 </td>
                             </tr>
-                            <?php endforeach; ?>
-                            <?php endif; ?>
+                            @endforeach
+                            @endif
                             </tbody>
                             <tfoot>
                             <tr>
+                                <th>{{ trans('imonitor::variables.table.id') }}</th>
+                                <th>{{ trans('imonitor::variables.table.title') }}</th>
                                 <th>{{ trans('core::core.table.created at') }}</th>
                                 <th>{{ trans('core::core.table.actions') }}</th>
                             </tr>

@@ -31,9 +31,9 @@ class VariableController extends AdminBaseController
      */
     public function index()
     {
-        //$variables = $this->variable->all();
+        $variables = $this->variable->all();
 
-        return view('imonitor::admin.variables.index', compact(''));
+        return view('imonitor::admin.variables.index', compact('variables'));
     }
 
     /**
@@ -43,7 +43,9 @@ class VariableController extends AdminBaseController
      */
     public function create()
     {
-        return view('imonitor::admin.variables.create');
+        $variables = $this->variable->paginate(20);
+
+        return view('imonitor::admin.variables.create', compact('variables'));
     }
 
     /**
@@ -54,10 +56,18 @@ class VariableController extends AdminBaseController
      */
     public function store(CreateVariableRequest $request)
     {
-        $this->variable->create($request->all());
+        try{
+            $this->variable->create($request->all());
 
-        return redirect()->route('admin.imonitor.variable.index')
-            ->withSuccess(trans('core::core.messages.resource created', ['name' => trans('imonitor::variables.title.variables')]));
+            return redirect()->route('admin.imonitor.variable.index')
+                ->withSuccess(trans('core::core.messages.resource created', ['name' => trans('imonitor::variables.title.variables')]));
+
+        }catch (\Exception $e){
+            \Log::error($e);
+            return redirect()->back()
+                ->withError(trans('core::core.messages.resource error', ['name' => trans('imonitor::variables.title.variables')]))->withInput($request->all());
+        }
+
     }
 
     /**
@@ -68,7 +78,8 @@ class VariableController extends AdminBaseController
      */
     public function edit(Variable $variable)
     {
-        return view('imonitor::admin.variables.edit', compact('variable'));
+        $variables=$this->variable->paginate(20);
+        return view('imonitor::admin.variables.edit', compact('variable','variables'));
     }
 
     /**
@@ -80,10 +91,19 @@ class VariableController extends AdminBaseController
      */
     public function update(Variable $variable, UpdateVariableRequest $request)
     {
-        $this->variable->update($variable, $request->all());
+        try{
+            $this->variable->update($variable, $request->all());
 
-        return redirect()->route('admin.imonitor.variable.index')
-            ->withSuccess(trans('core::core.messages.resource updated', ['name' => trans('imonitor::variables.title.variables')]));
+            return redirect()->route('admin.imonitor.variable.index')
+                ->withSuccess(trans('core::core.messages.resource updated', ['name' => trans('imonitor::variables.title.variables')]));
+
+        }catch (\Exception $e){
+            \Log::error($e);
+            return redirect()->back()
+                ->withError(trans('core::core.messages.resource error', ['name' => trans('imonitor::variables.title.variables')]))->withInput($request->all());
+
+        }
+
     }
 
     /**
@@ -94,9 +114,20 @@ class VariableController extends AdminBaseController
      */
     public function destroy(Variable $variable)
     {
-        $this->variable->destroy($variable);
+        try{
+            $this->variable->destroy($variable);
 
-        return redirect()->route('admin.imonitor.variable.index')
-            ->withSuccess(trans('core::core.messages.resource deleted', ['name' => trans('imonitor::variables.title.variables')]));
+            return redirect()->route('admin.imonitor.variable.index')
+                ->withSuccess(trans('core::core.messages.resource deleted', ['name' => trans('imonitor::variables.title.variables')]));
+
+        }catch (\Exception $e){
+            \Log::erro($e);
+            return redirect()->back()
+                ->withError(trans('core::core.messages.resource error', ['name' => trans('imonitor::variables.title.variables')]));
+
+
+
+        }
+
     }
 }

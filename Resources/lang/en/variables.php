@@ -14,8 +14,13 @@ return [
         'create variable' => 'Create a variable',
     ],
     'table' => [
+        'id'=>'Id',
+        'title'=>'Title'
     ],
     'form' => [
+        'variables'=>'Variables',
+        'title'=>'Title',
+        'description'=>'Description'
     ],
     'messages' => [
     ],

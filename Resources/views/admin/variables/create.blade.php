@@ -14,26 +14,47 @@
 @section('content')
     {!! Form::open(['route' => ['admin.imonitor.variable.store'], 'method' => 'post']) !!}
     <div class="row">
-        <div class="col-md-12">
-            <div class="nav-tabs-custom">
-                @include('partials.form-tab-headers')
-                <div class="tab-content">
-                    <?php $i = 0; ?>
-                    @foreach (LaravelLocalization::getSupportedLocales() as $locale => $language)
-                        <?php $i++; ?>
-                        <div class="tab-pane {{ locale() == $locale ? 'active' : '' }}" id="tab_{{ $i }}">
-                            @include('imonitor::admin.variables.partials.create-fields', ['lang' => $locale])
+        <div class="col-xs-12 col-md-9">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-primary">
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                            </button>
                         </div>
-                    @endforeach
+                        <div class="nav-tabs-custom">
+                            @include('partials.form-tab-headers')
+                            <div class="tab-content">
+                                <?php $i = 0; ?>
+                                @foreach (LaravelLocalization::getSupportedLocales() as $locale => $language)
+                                    <?php $i++; ?>
+                                    <div class="tab-pane {{ locale() == $locale ? 'active' : '' }}" id="tab_{{ $i }}">
+                                        @include('imonitor::admin.variables.partials.create-fields', ['lang' => $locale])
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
 
-                    <div class="box-footer">
-                        <button type="submit" class="btn btn-primary btn-flat">{{ trans('core::core.button.create') }}</button>
-                        <a class="btn btn-danger pull-right btn-flat" href="{{ route('admin.imonitor.variable.index')}}"><i class="fa fa-times"></i> {{ trans('core::core.button.cancel') }}</a>
                     </div>
                 </div>
-            </div> {{-- end nav-tabs-custom --}}
+                <div class="col-xs-12">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                        </div>
+                        <div class="box-body ">
+                            <div class="box-footer">
+                                <button type="submit" class="btn btn-primary btn-flat">{{ trans('core::core.button.create') }}</button>
+                                <a class="btn btn-danger pull-right btn-flat" href="{{ route('admin.imonitor.product.index')}}">
+                                    <i class="fa fa-times"></i> {{ trans('core::core.button.cancel') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
+
     {!! Form::close() !!}
 @stop
 

@@ -37,14 +37,14 @@ class RegisterImonitorSidebar implements \Maatwebsite\Sidebar\SidebarExtender
     public function extendWith(Menu $menu)
     {
         $menu->group(trans('core::sidebar.content'), function (Group $group) {
-            $group->item(trans('imonitor::imonitors.title.imonitors'), function (Item $item) {
-                $item->icon('fa fa-copy');
+            $group->item(trans('imonitor::common.title.imonitors'), function (Item $item) {
+                $item->icon('fa fa-bar-chart');
                 $item->weight(10);
                 $item->authorize(
                      /* append */
                 );
                 $item->item(trans('imonitor::products.title.products'), function (Item $item) {
-                    $item->icon('fa fa-copy');
+                    $item->icon('fa fa-desktop');
                     $item->weight(0);
                     $item->append('admin.imonitor.product.create');
                     $item->route('admin.imonitor.product.index');
@@ -53,7 +53,7 @@ class RegisterImonitorSidebar implements \Maatwebsite\Sidebar\SidebarExtender
                     );
                 });
                 $item->item(trans('imonitor::variables.title.variables'), function (Item $item) {
-                    $item->icon('fa fa-copy');
+                    $item->icon('fa fa-check-square');
                     $item->weight(0);
                     $item->append('admin.imonitor.variable.create');
                     $item->route('admin.imonitor.variable.index');
@@ -62,7 +62,7 @@ class RegisterImonitorSidebar implements \Maatwebsite\Sidebar\SidebarExtender
                     );
                 });
                 $item->item(trans('imonitor::records.title.records'), function (Item $item) {
-                    $item->icon('fa fa-copy');
+                    $item->icon('fa fa-history');
                     $item->weight(0);
                     $item->append('admin.imonitor.record.create');
                     $item->route('admin.imonitor.record.index');

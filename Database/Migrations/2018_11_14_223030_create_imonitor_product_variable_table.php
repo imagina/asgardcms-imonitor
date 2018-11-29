@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateImonitorVariablesTable extends Migration
+class CreateImonitorProductVariableTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,11 +13,11 @@ class CreateImonitorVariablesTable extends Migration
      */
     public function up()
     {
-        Schema::create('imonitor__variables', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
+        Schema::create('imonitor_product_variable', function (Blueprint $table) {
             $table->increments('id');
-            $table->text('options')->default('')->nullable();
-            // Your fields
+            $table->integer('variable_id');
+            $table->integer('product_id');
+
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ class CreateImonitorVariablesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('imonitor__variables');
+        Schema::dropIfExists('imonitor_product_variable');
     }
 }

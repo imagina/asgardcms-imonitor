@@ -4,9 +4,7 @@ use Illuminate\Routing\Router;
 /** @var Router $router */
 
 $router->group(['prefix' =>'/imonitor'], function (Router $router) {
-    $router->bind('product', function ($id) {
-        return app('Modules\Imonitor\Repositories\ProductRepository')->find($id);
-    });
+
     $router->get('products', [
         'as' => 'admin.imonitor.product.index',
         'uses' => 'ProductController@index',
@@ -22,17 +20,17 @@ $router->group(['prefix' =>'/imonitor'], function (Router $router) {
         'uses' => 'ProductController@store',
         'middleware' => 'can:imonitor.products.create'
     ]);
-    $router->get('products/{product}/edit', [
+    $router->get('products/{id}/edit', [
         'as' => 'admin.imonitor.product.edit',
         'uses' => 'ProductController@edit',
         'middleware' => 'can:imonitor.products.edit'
     ]);
-    $router->put('products/{product}', [
+    $router->put('products/{id}', [
         'as' => 'admin.imonitor.product.update',
         'uses' => 'ProductController@update',
         'middleware' => 'can:imonitor.products.edit'
     ]);
-    $router->delete('products/{product}', [
+    $router->delete('products/{id}', [
         'as' => 'admin.imonitor.product.destroy',
         'uses' => 'ProductController@destroy',
         'middleware' => 'can:imonitor.products.destroy'
