@@ -68,41 +68,43 @@ $router->group(['prefix' =>'/imonitor'], function (Router $router) {
         'uses' => 'VariableController@destroy',
         'middleware' => 'can:imonitor.variables.destroy'
     ]);
-    $router->bind('record', function ($id) {
-        return app('Modules\Imonitor\Repositories\RecordRepository')->find($id);
-    });
-    $router->get('records', [
-        'as' => 'admin.imonitor.record.index',
-        'uses' => 'RecordController@index',
-        'middleware' => 'can:imonitor.records.index'
-    ]);
-    $router->get('records/create', [
-        'as' => 'admin.imonitor.record.create',
-        'uses' => 'RecordController@create',
-        'middleware' => 'can:imonitor.records.create'
-    ]);
-    $router->post('records', [
-        'as' => 'admin.imonitor.record.store',
-        'uses' => 'RecordController@store',
-        'middleware' => 'can:imonitor.records.create'
-    ]);
-    $router->get('records/{record}/edit', [
-        'as' => 'admin.imonitor.record.edit',
-        'uses' => 'RecordController@edit',
-        'middleware' => 'can:imonitor.records.edit'
-    ]);
-    $router->put('records/{record}', [
-        'as' => 'admin.imonitor.record.update',
-        'uses' => 'RecordController@update',
-        'middleware' => 'can:imonitor.records.edit'
-    ]);
-    $router->delete('records/{record}', [
-        'as' => 'admin.imonitor.record.destroy',
-        'uses' => 'RecordController@destroy',
-        'middleware' => 'can:imonitor.records.destroy'
-    ]);
-// append
 
+    $router->group(['prefix' =>'/records'], function (Router $router) {
+        $router->bind('record', function ($id) {
+            return app('Modules\Imonitor\Repositories\RecordRepository')->find($id);
+        });
+        $router->get('{product}/index', [
+            'as' => 'admin.imonitor.record.index',
+            'uses' => 'RecordController@index',
+            'middleware' => 'can:imonitor.records.index'
+        ]);
+        $router->get('/create', [
+            'as' => 'admin.imonitor.record.create',
+            'uses' => 'RecordController@create',
+            'middleware' => 'can:imonitor.records.create'
+        ]);
+        $router->post('/', [
+            'as' => 'admin.imonitor.record.store',
+            'uses' => 'RecordController@store',
+            'middleware' => 'can:imonitor.records.create'
+        ]);
+        $router->get('/{record}/edit', [
+            'as' => 'admin.imonitor.record.edit',
+            'uses' => 'RecordController@edit',
+            'middleware' => 'can:imonitor.records.edit'
+        ]);
+        $router->put('/{record}', [
+            'as' => 'admin.imonitor.record.update',
+            'uses' => 'RecordController@update',
+            'middleware' => 'can:imonitor.records.edit'
+        ]);
+        $router->delete('/{record}', [
+            'as' => 'admin.imonitor.record.destroy',
+            'uses' => 'RecordController@destroy',
+            'middleware' => 'can:imonitor.records.destroy'
+        ]);
+// append
+    });
 
 
 });

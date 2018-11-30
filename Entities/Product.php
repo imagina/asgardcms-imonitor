@@ -14,7 +14,7 @@ class Product extends Model
 
     protected $table = 'imonitor__products';
     public $translatedAttributes = ['title','description'];
-    protected $fillable = ['title','description','address','variable_id','user_id'];
+    protected $fillable = ['title','description','address','variable_id','user_id','product_user_id'];
     protected $fakeColumns = ['options'];
 
     protected $cast = [
@@ -26,6 +26,11 @@ class Product extends Model
     {
         $driver = config('asgard.user.config.driver');
         return $this->belongsTo("Modules\\User\\Entities\\{$driver}\\User");
+    }
+    public function productUser()
+    {
+        $driver = config('asgard.user.config.driver');
+        return $this->belongsTo("Modules\\User\\Entities\\{$driver}\\User", 'product_user_id');
     }
     public function variables()
     {

@@ -61,18 +61,6 @@ class RegisterImonitorSidebar implements \Maatwebsite\Sidebar\SidebarExtender
                         $this->auth->hasAccess('imonitor.variables.index')
                     );
                 });
-                $item->item(trans('imonitor::records.title.records'), function (Item $item) {
-                    $item->icon('fa fa-history');
-                    $item->weight(0);
-                    $item->append('admin.imonitor.record.create');
-                    $item->route('admin.imonitor.record.index');
-                    $item->authorize(
-                        $this->auth->hasAccess('imonitor.records.index')
-                    );
-                });
-// append
-
-
 
             });
         });

@@ -16,7 +16,7 @@ class CreateImonitorVariableTranslationsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             // Your translatable fields
 
             $table->integer('variable_id')->unsigned();

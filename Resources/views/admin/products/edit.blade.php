@@ -5,37 +5,39 @@
         {{ trans('imonitor::products.title.edit product') }}
     </h1>
     <ol class="breadcrumb">
-        <li><a href="{{ route('dashboard.index') }}"><i class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
-        <li><a href="{{ route('admin.imonitor.product.index') }}">{{ trans('imonitor::products.title.products') }}</a></li>
+        <li><a href="{{ route('dashboard.index') }}"><i
+                        class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
+        <li><a href="{{ route('admin.imonitor.product.index') }}">{{ trans('imonitor::products.title.products') }}</a>
+        </li>
         <li class="active">{{ trans('imonitor::products.title.edit product') }}</li>
     </ol>
 @stop
 
 @section('content')
     <div class="row">
-    {!! Form::open(['route' => ['admin.imonitor.product.update', $product->id], 'method' => 'put']) !!}
-
-    <div class="col-xs-12 col-md-9">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="box box-primary">
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                    class="fa fa-minus"></i>
-                        </button>
-                    </div>
-                    <div class="nav-tabs-custom">
-                        @include('partials.form-tab-headers')
-                        <div class="tab-content">
-                            <?php $i = 0; ?>
-                            @foreach (LaravelLocalization::getSupportedLocales() as $locale => $language)
-                                <?php $i++; ?>
-                                <div class="tab-pane {{ locale() == $locale ? 'active' : '' }}" id="tab_{{ $i }}">
-                                    @include('imonitor::admin.products.partials.edit-fields', ['lang' => $locale])
-                                </div>
-                            @endforeach
+        {!! Form::open(['route' => ['admin.imonitor.product.update', $product->id], 'method' => 'put']) !!}
+        <div class="col-xs-12 col-md-9">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-primary">
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-minus"></i>
+                            </button>
                         </div>
-                    </div> {{-- end nav-tabs-custom --}}
+                        <div class="nav-tabs-custom">
+                            @include('partials.form-tab-headers')
+                            <div class="tab-content">
+                                <?php $i = 0; ?>
+                                @foreach (LaravelLocalization::getSupportedLocales() as $locale => $language)
+                                    <?php $i++; ?>
+                                    <div class="tab-pane {{ locale() == $locale ? 'active' : '' }}" id="tab_{{ $i }}">
+                                        @include('imonitor::admin.products.partials.edit-fields', ['lang' => $locale])
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div> {{-- end nav-tabs-custom --}}
+                    </div>
                 </div>
             </div>
             <div class="col-xs-12">
@@ -54,72 +56,103 @@
                 </div>
             </div>
         </div>
-
-    </div>
-    <div class="col-xs-12 col-md-3">
-        <div class="row">
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>{{trans('imonitor::variables.form.variables')}}</label>
-                        </div>
-                    </div>
-                    <div class="box-body">
-                        @include('imonitor::admin.fields.checklist.variables')
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>Address</label>
+        <div class="col-xs-12 col-md-3">
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>{{trans('imonitor::variables.form.variables')}}</label>
+                            </div>
                         </div>
                         <div class="box-body">
-                            @include('imonitor::admin.fields.maps',['field'=>['name'=>'address', 'label'=>trans('imonitor::products.form.address'),'value'=>$product->address]])
+                            @include('imonitor::admin.fields.checklist.variables')
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>{{trans('imonitor::products.form.Product user')}}</label>
+                            </div>
                         </div>
-                        <label>User</label>
-                    </div>
-                    <div class="box-body">
-                        <select name="user_id" id="user" class="form-control">
-                            @foreach ($users as $user)
-                                <option value="{{$user->id }}" {{$user->id == $currentUser->id ? 'selected' : ''}}>{{$user->present()->fullname()}}
-                                    - ({{$user->email}})
-                                </option>
-                            @endforeach
-                        </select><br>
+                        <div class="box-body">
+                            @if(isset($product->productUser)&& !empty($product->productUser))
+                                <div class="form-group">
+                                    <label>User:</label>
+                                    <input class="form-control" disabled value="{{$product->productUser->email}}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Password:</label>
+                                   <input class="form-control" disabled value="**********">
+                                </div>
+                                <div class="form-group">
+                                    <a class="btn btn-info"
+                                       href="{{ route('admin.user.user.edit', [$product->productUser->id]) }}">{{ trans('user::users.title.edit-user') }}</a>
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <label>{{trans('imonitor::products.form.user assign')}}</label>
+                        </div>
+                        <div class="box-body">
+                            <select name="user_id" id="user" class="form-control">
+                                @foreach ($users as $user)
+                                    <option value="{{$user->id }}" {{$user->id == $currentUser->id ? 'selected' : ''}}>{{$user->present()->fullname()}}
+                                        - ({{$user->email}})
+                                    </option>
+                                @endforeach
+                            </select><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>{{trans('imonitor::products.form.address')}}</label>
+                            </div>
+                            <div class="box-body">
+                                @include('imonitor::admin.fields.maps',['field'=>['name'=>'address', 'label'=>trans('imonitor::products.form.address'),'value'=>$product->address]])
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
-
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {{-- end nav-tabs-custom --}}
+        </div>
     </div>
     {!! Form::close() !!}
-
-    </div>
-
 @stop
 
 @section('footer')
@@ -134,16 +167,16 @@
 
 @push('js-stack')
     <script type="text/javascript">
-        $( document ).ready(function() {
+        $(document).ready(function () {
             $(document).keypressAction({
                 actions: [
-                    { key: 'b', route: "<?= route('admin.imonitor.product.index') ?>" }
+                    {key: 'b', route: "<?= route('admin.imonitor.product.index') ?>"}
                 ]
             });
         });
     </script>
     <script>
-        $( document ).ready(function() {
+        $(document).ready(function () {
             $('input[type="checkbox"].flat-blue, input[type="radio"].flat-blue').iCheck({
                 checkboxClass: 'icheckbox_flat-blue',
                 radioClass: 'iradio_flat-blue'

@@ -16,7 +16,7 @@ class CreateImonitorProductTranslationsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->text('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             
             // Your translatable fields
 

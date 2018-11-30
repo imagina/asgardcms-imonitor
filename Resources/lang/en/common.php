@@ -14,8 +14,11 @@ return [
     'table' => [
     ],
     'form' => [
+
     ],
     'messages' => [
+        'title is required'=>'The Title is required',
+        'title min 2'=>'The Title min 2'
     ],
     'validation' => [
     ],

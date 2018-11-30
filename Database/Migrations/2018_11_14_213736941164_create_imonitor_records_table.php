@@ -15,7 +15,9 @@ class CreateImonitorRecordsTable extends Migration
         Schema::create('imonitor__records', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            // Your fields
+            $table->integer('variable_id')->unsigned();
+            $table->integer('product_id')->unsigned();
+            $table->double('value');
             $table->timestamps();
         });
     }

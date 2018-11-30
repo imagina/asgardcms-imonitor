@@ -41,8 +41,9 @@ class ImonitorServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        $this->publishConfig('imonitor', 'config');
+        $this->publishConfig('imonitor', 'settings');
         $this->publishConfig('imonitor', 'permissions');
-
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
     }
 

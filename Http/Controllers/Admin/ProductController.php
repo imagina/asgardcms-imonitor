@@ -64,8 +64,9 @@ class ProductController extends AdminBaseController
      * @return Response
      */
     public function store(CreateProductRequest $request)
-    { //dd($request);
+    {
         try{
+
             $this->product->create($request->all());
 
             return redirect()->route('admin.imonitor.product.index')

@@ -1,13 +1,15 @@
 {
     "name": "Imonitor",
     "alias": "imonitor",
+    "version":"0.0.0",
     "description": "",
     "keywords": [],
     "active": 1,
     "order": 1,
     "providers": [
         "Modules\\Imonitor\\Providers\\ImonitorServiceProvider",
-        "Modules\\Imonitor\\Providers\\RouteServiceProvider"
+        "Modules\\Imonitor\\Providers\\RouteServiceProvider",
+        "Modules\\Imonitor\\Providers\\EventServiceProvider"
     ],
     "aliases": {},
     "files": [

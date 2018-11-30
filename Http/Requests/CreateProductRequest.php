@@ -8,12 +8,16 @@ class CreateProductRequest extends BaseFormRequest
 {
     public function rules()
     {
-        return [];
+        return [
+            'password'=>'required|min:8'
+        ];
     }
 
     public function translationRules()
     {
-        return [];
+        return [
+            'title'=>'required|min:2'
+        ];
     }
 
     public function authorize()
@@ -28,6 +32,11 @@ class CreateProductRequest extends BaseFormRequest
 
     public function translationMessages()
     {
-        return [];
+        return [
+            'title.required' => trans('imonitor::common.messages.title is required'),
+            'title.min:2'=> trans('imonitor::common.messages.title min 2 '),
+            'password.required' => trans('imonitor::products.messages.password is required'),
+            'password.min:2'=> trans('imonitor::products.messages.password min 8 '),
+        ];
     }
 }

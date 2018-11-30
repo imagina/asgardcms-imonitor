@@ -15,12 +15,11 @@ class CreateImonitorProductsTable extends Migration
         Schema::create('imonitor__products', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('variable_id');
+            $table->integer('product_user_id')->unsigned()->default(0);
             $table->integer('user_id')->unsigned();
-            //$table->integer('useru_id')->unsigned();
-            $table->text('address');
+            $table->text('address')->nullable();
             $table->text('options')->default('')->nullable();
-
+            //$table->foreign('product_user_id')->references('id')->on(config('auth.table', 'users'))->onDelete('restrict');
             $table->foreign('user_id')->references('id')->on(config('auth.table', 'users'))->onDelete('restrict');
             // Your fields
             $table->timestamps();

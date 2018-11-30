@@ -17,12 +17,15 @@ return [
         'id'=>'Id',
         'title'=>'Title',
         'user_id'=>'User',
-
+        'variables'=>'Variables',
     ],
     'form' => [
         'title'=>'Title',
         'description'=>'Description',
-        'address'=>'Address'
+        'address'=>'Address',
+        'password'=>'Password user product',
+        'user assign'=>'Client Assign',
+        'Product user'=>"User Product login",
     ],
     'messages' => [
     ],

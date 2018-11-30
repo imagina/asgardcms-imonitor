@@ -5,7 +5,8 @@
         {{ trans('imonitor::products.title.products') }}
     </h1>
     <ol class="breadcrumb">
-        <li><a href="{{ route('dashboard.index') }}"><i class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
+        <li><a href="{{ route('dashboard.index') }}"><i
+                        class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
         <li class="active">{{ trans('imonitor::products.title.products') }}</li>
     </ol>
 @stop
@@ -15,7 +16,8 @@
         <div class="col-xs-12">
             <div class="row">
                 <div class="btn-group pull-right" style="margin: 0 15px 15px 0;">
-                    <a href="{{ route('admin.imonitor.product.create') }}" class="btn btn-primary btn-flat" style="padding: 4px 10px;">
+                    <a href="{{ route('admin.imonitor.product.create') }}" class="btn btn-primary btn-flat"
+                       style="padding: 4px 10px;">
                         <i class="fa fa-pencil"></i> {{ trans('imonitor::products.button.create product') }}
                     </a>
                 </div>
@@ -31,50 +33,62 @@
                             <tr>
                                 <th>{{ trans('imonitor::products.table.id') }}</th>
                                 <th>{{ trans('imonitor::products.table.title') }}</th>
-                              {{--  <th>{{ trans('imonitor::products.table.user_id') }}</th>--}}
+                                <th>{{ trans('imonitor::products.table.user_id') }}</th>
+                                <th>{{ trans('imonitor::products.table.variables') }}</th>
                                 <th>{{ trans('core::core.table.created at') }}</th>
                                 <th data-sortable="false">{{ trans('core::core.table.actions') }}</th>
                             </tr>
                             </thead>
                             <tbody>
                             @if (isset($products))
-                            @foreach ($products as $product)
-                            <tr>
-                                <td>
-                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
-                                        {{ $product->id }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
-                                        {{ $product->title }}
-                                    </a>
-                                </td>
-                                {{--<td>
-                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
-                                        {{ $product->email}}
-                                    </a>
-                                </td>--}}
-                                <td>
-                                    <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
-                                        {{ $product->created_at }}
-                                    </a>
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}" class="btn btn-default btn-flat"><i class="fa fa-pencil"></i></a>
-                                        <button class="btn btn-danger btn-flat" data-toggle="modal" data-target="#modal-delete-confirmation" data-action-target="{{ route('admin.imonitor.product.destroy', [$product->id]) }}"><i class="fa fa-trash"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforeach
+                                @foreach ($products as $product)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
+                                                {{ $product->id }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
+                                                {{ $product->title }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {{ $product->user->present()->fullname() ??''}}
+                                        </td>
+                                        <td>
+                                            @if(count($product->variables))
+                                                @foreach($product->variables as $index=>$variable)
+                                                    {{$variable->title}}@if($index!=end($product->variables)),@endif
+                                                @endforeach
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}">
+                                                {{ $product->created_at }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.imonitor.product.edit', [$product->id]) }}"
+                                                   class="btn btn-default btn-flat"><i class="fa fa-pencil"></i></a>
+                                                <a href="{{ route('admin.imonitor.record.index', [$product->id]) }}"
+                                                   class="btn btn-success btn-flat"><i class="fa fa-bar-chart"></i></a>
+                                                <button class="btn btn-danger btn-flat" data-toggle="modal"
+                                                        data-target="#modal-delete-confirmation"
+                                                        data-action-target="{{ route('admin.imonitor.product.destroy', [$product->id]) }}">
+                                                    <i class="fa fa-trash"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             @endif
                             </tbody>
                             <tfoot>
                             <tr>
                                 <th>{{ trans('imonitor::products.table.id') }}</th>
                                 <th>{{ trans('imonitor::products.table.title') }}</th>
-                               {{-- <th>{{ trans('imonitor::products.table.user_id') }}</th>--}}
+                                {{-- <th>{{ trans('imonitor::products.table.user_id') }}</th>--}}
                                 <th>{{ trans('core::core.table.created at') }}</th>
                                 <th>{{ trans('core::core.table.actions') }}</th>
                             </tr>
@@ -102,10 +116,10 @@
 
 @push('js-stack')
     <script type="text/javascript">
-        $( document ).ready(function() {
+        $(document).ready(function () {
             $(document).keypressAction({
                 actions: [
-                    { key: 'c', route: "<?= route('admin.imonitor.product.create') ?>" }
+                    {key: 'c', route: "<?= route('admin.imonitor.product.create') ?>"}
                 ]
             });
         });
@@ -120,7 +134,7 @@
                 "sort": true,
                 "info": true,
                 "autoWidth": true,
-                "order": [[ 0, "desc" ]],
+                "order": [[0, "desc"]],
                 "language": {
                     "url": '<?php echo Module::asset("core:js/vendor/datatables/{$locale}.json") ?>'
                 }

@@ -2,6 +2,7 @@
 
 namespace Modules\Imonitor\Repositories\Eloquent;
 
+use Modules\Imonitor\Events\ProductWasCreated;
 use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
 use Modules\Iproducts\Repositories\Collection;
@@ -102,7 +103,7 @@ class EloquentProductRepository extends EloquentBaseRepository implements Produc
     {
         // dd($data);
         $product = $this->model->create($data);
-        /* event(new ProductWasCreated($product, $data));*/
+        event(new ProductWasCreated($product, $data));
         $product->variables()->sync(array_get($data, 'variables', []));
         return $this->find($product->id);
     }

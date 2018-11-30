@@ -5,33 +5,37 @@
         {{ trans('imonitor::products.title.create product') }}
     </h1>
     <ol class="breadcrumb">
-        <li><a href="{{ route('dashboard.index') }}"><i class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
-        <li><a href="{{ route('admin.imonitor.product.index') }}">{{ trans('imonitor::products.title.products') }}</a></li>
+        <li><a href="{{ route('dashboard.index') }}"><i
+                        class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
+        <li><a href="{{ route('admin.imonitor.product.index') }}">{{ trans('imonitor::products.title.products') }}</a>
+        </li>
         <li class="active">{{ trans('imonitor::products.title.create product') }}</li>
     </ol>
 @stop
 
 @section('content')
-    {!! Form::open(['route' => ['admin.imonitor.product.store'], 'method' => 'post']) !!}
-    <div class="col-xs-12 col-md-9">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="box box-primary">
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                    class="fa fa-minus"></i>
-                        </button>
-                    </div>
-                    <div class="nav-tabs-custom">
-                        @include('partials.form-tab-headers')
-                        <div class="tab-content">
-                            <?php $i = 0; ?>
-                            @foreach (LaravelLocalization::getSupportedLocales() as $locale => $language)
-                                <?php $i++; ?>
-                                <div class="tab-pane {{ locale() == $locale ? 'active' : '' }}" id="tab_{{ $i }}">
-                                    @include('imonitor::admin.products.partials.create-fields', ['lang' => $locale])
-                                </div>
-                            @endforeach
+    <div class="row">
+        {!! Form::open(['route' => ['admin.imonitor.product.store'], 'method' => 'post']) !!}
+        <div class="col-xs-12 col-md-9">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-primary">
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <div class="nav-tabs-custom">
+                            @include('partials.form-tab-headers')
+                            <div class="tab-content">
+                                <?php $i = 0; ?>
+                                @foreach (LaravelLocalization::getSupportedLocales() as $locale => $language)
+                                    <?php $i++; ?>
+                                    <div class="tab-pane {{ locale() == $locale ? 'active' : '' }}" id="tab_{{ $i }}">
+                                        @include('imonitor::admin.products.partials.create-fields', ['lang' => $locale])
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -69,8 +73,7 @@
                         </div>
                     </div>
                     <div class="box-body">
-                     @include('imonitor::admin.fields.checklist.variables')
-
+                        @include('imonitor::admin.fields.checklist.variables')
                     </div>
                 </div>
             </div>
@@ -83,11 +86,15 @@
                             </button>
                         </div>
                         <div class="form-group">
-                            <label>Address</label>
+                            <label>{{trans('imonitor::products.form.password')}}</label>
                         </div>
-                        <div class="box-body">
-                            @include('imonitor::admin.fields.maps',['field'=>['name'=>'address', 'label'=>trans('imonitor::products.form.address')]])
+                    </div>
+                    <div class="box-body">
+                        <div class='form-group{{ $errors->has("password") ? ' has-error' : '' }}'>
+                            {!! Form::password("password",['class' => 'form-control', 'placeholder' => trans('imonitor::products.form.password')]) !!}
+                            {!! $errors->first("password", '<span class="help-block">:message</span>') !!}
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -99,7 +106,7 @@
                                         class="fa fa-minus"></i>
                             </button>
                         </div>
-                        <label>User</label>
+                        <label>{{trans('imonitor::products.form.user assign')}}</label>
                     </div>
                     <div class="box-body">
                         <select name="user_id" id="user" class="form-control">
@@ -112,6 +119,24 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xs-12 ">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label>{{trans('imonitor::products.form.address')}}</label>
+                        </div>
+                        <div class="box-body">
+                            @include('imonitor::admin.fields.maps',['field'=>['name'=>'address', 'label'=>trans('imonitor::products.form.address')]])
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -135,16 +160,16 @@
 
 @push('js-stack')
     <script type="text/javascript">
-        $( document ).ready(function() {
+        $(document).ready(function () {
             $(document).keypressAction({
                 actions: [
-                    { key: 'b', route: "<?= route('admin.imonitor.product.index') ?>" }
+                    {key: 'b', route: "<?= route('admin.imonitor.product.index') ?>"}
                 ]
             });
         });
     </script>
     <script>
-        $( document ).ready(function() {
+        $(document).ready(function () {
             $('input[type="checkbox"].flat-blue, input[type="radio"].flat-blue').iCheck({
                 checkboxClass: 'icheckbox_flat-blue',
                 radioClass: 'iradio_flat-blue'
