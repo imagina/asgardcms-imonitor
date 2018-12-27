@@ -2,14 +2,23 @@
 
 namespace Modules\Imonitor\Entities;
 
-use Dimsav\Translatable\Translatable;
+
 use Illuminate\Database\Eloquent\Model;
 
 class Record extends Model
 {
-    use Translatable;
 
     protected $table = 'imonitor__records';
-    public $translatedAttributes = [];
-    protected $fillable = [];
+
+    protected $fillable = ['variable_id', 'product_id', 'value'];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+    public function variable()
+    {
+        return $this->belongsTo(Variable::class);
+    }
+
 }

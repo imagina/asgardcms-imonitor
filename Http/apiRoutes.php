@@ -70,10 +70,6 @@ $router->group(['prefix'=>'imonitor'],function (Router $router){
             'as' => 'imonitor.api.variables.index',
             'uses' => 'VariableController@index',
         ]);
-        $router->get('/{slug}', [
-            'as' => 'imonitor.api.variables.show',
-            'uses' => 'VariableController@show',
-        ]);
 
         $router->get('/', [
             'as' => 'imonitor.api.variables',
@@ -101,6 +97,36 @@ $router->group(['prefix'=>'imonitor'],function (Router $router){
             'as' => 'imonitor.api.variables.delete',
             'uses' => 'VariableController@delete',
             'middleware' => ['api.token','token-can:imonitor.variables.destroy']
+        ]);
+    });
+    $router->group(['prefix' => '/records'], function (Router $router) {
+        $router->bind('apimonitorrecord', function ($id) {
+
+            return app(\Modules\Imonitor\Repositories\VariableRepository::class)->find($id);
+        });
+
+        $router->get('/', [
+            'as' => 'imonitor.api.records.index',
+            'uses' => 'RecordController@index',
+        ]);
+        $router->get('{apimonitorrecord}', [
+            'as' => 'imonitor.api.records',
+            'uses' => 'RecordController@store',
+        ]);
+        $router->post('/save', [
+            'as' => 'imonitor.api.record.store',
+            'uses' => 'RecordController@store',
+            'middleware' => ['auth:api']
+        ]);
+        $router->put('{apimonitorrecord}', [
+            'as' => 'imonitor.api.records.update',
+            'uses' => 'RecordController@update',
+            'middleware' =>['auth:api','token-can:imonitor.variables.edit']
+        ]);
+        $router->delete('{apimonitorrecord}', [
+            'as' => 'imonitor.api.records.delete',
+            'uses' => 'RecordController@delete',
+            'middleware' => ['auth:api','token-can:imonitor.variables.destroy']
         ]);
     });
 });

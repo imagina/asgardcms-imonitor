@@ -4,9 +4,8 @@ namespace Modules\Imonitor\Entities;
 
 use Dimsav\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Imonitor\Entities\Variable;
-use Modules\Core\Traits\NamespacedEntity;
 use Laracasts\Presenter\PresentableTrait;
+use Modules\Core\Traits\NamespacedEntity;
 
 class Product extends Model
 {
@@ -32,9 +31,13 @@ class Product extends Model
         $driver = config('asgard.user.config.driver');
         return $this->belongsTo("Modules\\User\\Entities\\{$driver}\\User", 'product_user_id');
     }
+
     public function variables()
     {
         return $this->belongsToMany(Variable::class, 'imonitor_product_variable');
     }
-
+    public function records()
+    {
+        return $this->hasMany(Record::class);
+    }
 }

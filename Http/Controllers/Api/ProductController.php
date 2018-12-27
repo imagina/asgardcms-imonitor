@@ -11,7 +11,7 @@ namespace Modules\Imonitor\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Log;
 use Mockery\CountValidator\Exception;
-use Modules\Imonitor\Http\Controllers\Api\BaseApiController;
+use Modules\Ihelpers\Http\Controllers\Api\BaseApiController;  //Base API
 use Modules\Imonitor\Entities\Product;
 use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Entities\Variable;

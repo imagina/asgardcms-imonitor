@@ -57,89 +57,88 @@
             </div>
         </div>
 
-    </div>
-    <div class="col-xs-12 col-md-3">
-        <div class="row">
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>{{trans('imonitor::variables.form.variables')}}</label>
-                        </div>
-                    </div>
-                    <div class="box-body">
-                        @include('imonitor::admin.fields.checklist.variables')
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>{{trans('imonitor::products.form.password')}}</label>
-                        </div>
-                    </div>
-                    <div class="box-body">
-                        <div class='form-group{{ $errors->has("password") ? ' has-error' : '' }}'>
-                            {!! Form::password("password",['class' => 'form-control', 'placeholder' => trans('imonitor::products.form.password')]) !!}
-                            {!! $errors->first("password", '<span class="help-block">:message</span>') !!}
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <label>{{trans('imonitor::products.form.user assign')}}</label>
-                    </div>
-                    <div class="box-body">
-                        <select name="user_id" id="user" class="form-control">
-                            @foreach ($users as $user)
-                                <option value="{{$user->id }}" {{$user->id == $currentUser->id ? 'selected' : ''}}>{{$user->present()->fullname()}}
-                                    - ({{$user->email}})
-                                </option>
-                            @endforeach
-                        </select><br>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 ">
-                <div class="box box-primary">
-                    <div class="box-header">
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>{{trans('imonitor::products.form.address')}}</label>
+        <div class="col-xs-12 col-md-3">
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>{{trans('imonitor::variables.form.variables')}}</label>
+                            </div>
                         </div>
                         <div class="box-body">
-                            @include('imonitor::admin.fields.maps',['field'=>['name'=>'address', 'label'=>trans('imonitor::products.form.address')]])
+                            @include('imonitor::admin.fields.checklist.variables')
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>{{trans('imonitor::products.form.password')}}</label>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class='form-group{{ $errors->has("password") ? ' has-error' : '' }}'>
+                                {!! Form::password("password",['class' => 'form-control', 'placeholder' => trans('imonitor::products.form.password')]) !!}
+                                {!! $errors->first("password", '<span class="help-block">:message</span>') !!}
+                            </div>
 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <label>{{trans('imonitor::products.form.user assign')}}</label>
+                        </div>
+                        <div class="box-body">
+                            <select name="user_id" id="user" class="form-control">
+                                @foreach ($users as $user)
+                                    <option value="{{$user->id }}" {{$user->id == $currentUser->id ? 'selected' : ''}}>{{$user->present()->fullname()}}
+                                        - ({{$user->email}})
+                                    </option>
+                                @endforeach
+                            </select><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 ">
+                    <div class="box box-primary">
+                        <div class="box-header">
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="form-group">
+                                <label>{{trans('imonitor::products.form.address')}}</label>
+                            </div>
+                            <div class="box-body">
+                                @include('imonitor::admin.fields.maps',['field'=>['name'=>'address', 'label'=>trans('imonitor::products.form.address')]])
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-md-12">
             {{-- end nav-tabs-custom --}}

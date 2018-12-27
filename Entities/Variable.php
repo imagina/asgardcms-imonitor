@@ -4,8 +4,8 @@ namespace Modules\Imonitor\Entities;
 
 use Dimsav\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Core\Traits\NamespacedEntity;
 use Laracasts\Presenter\PresentableTrait;
+use Modules\Core\Traits\NamespacedEntity;
 
 class Variable extends Model
 {
@@ -18,9 +18,13 @@ class Variable extends Model
     /**
      * @return array
      */
-  public function products()
-  {
-      return $this->belongsToMany(Product::class,  'imonitor_product_variable');
-  }
-  
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'imonitor_product_variable');
+    }
+
+    public function records()
+    {
+        return $this->hasMany(Record::class);
+    }
 }
