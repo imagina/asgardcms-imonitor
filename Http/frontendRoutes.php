@@ -14,4 +14,9 @@ $router->group(['prefix' =>'/monitor'], function (Router $router) {
         'uses' => 'PublicController@show',
         'middleware' => 'can:imonitor.products.index'
     ]);
+    $router->get('/{product}/historic', [
+        'as' => 'imonitor.product.historic',
+        'uses' => 'PublicController@historic',
+        'middleware' => 'can:imonitor.products.index'
+    ]);
 });

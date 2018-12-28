@@ -48,5 +48,16 @@ class PublicController extends AdminBaseController
             return abort(404);
         }
     }
+    public function historic($id)
+    {
+        $user = $this->auth->user();
+
+        $product = $this->product->find($id);
+        if ($product->user_id == $user->id) {
+            return view('imonitor::frontend.products.historic', compact('product'));
+        } else {
+            return abort(404);
+        }
+    }
 
 }

@@ -86,9 +86,8 @@ class ProductController extends AdminBaseController
      * @param  Product $product
      * @return Response
      */
-    public function edit($id)
+    public function edit(Product $product)
     {
-        $product= $this->product->find($id);
         $variables= $this->variable->all();
         $users = $this->user->all();
 
