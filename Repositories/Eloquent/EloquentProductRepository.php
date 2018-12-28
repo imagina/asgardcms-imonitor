@@ -114,5 +114,24 @@ class EloquentProductRepository extends EloquentBaseRepository implements Produc
         $model->variables()->sync(array_get($data, 'variables', []));
         return $model;
     }
-    
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function whereUser($id)
+    {
+        $query = $this->model->with('translations')->where('user_id',$id)->paginate(12);
+        return $query;
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function whereVariable($id)
+    {
+        $query = $this->model->where('user_id',$id)->paginate(12);
+        return $query;
+    }
 }

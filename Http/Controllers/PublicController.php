@@ -1,58 +1,52 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: imagina
- * Date: 15/11/2018
- * Time: 2:51 PM
- */
 
 namespace Modules\Imonitor\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Log;
 use Mockery\CountValidator\Exception;
-use Modules\Core\Http\Controllers\BasePublicController;
+use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\VariableRepository;
-use Illuminate\Http\Request;
+use Modules\User\Contracts\Authentication;
 use Route;
 
-class PublicController extends BasePublicController
+class PublicController extends AdminBaseController
 {
     public $product;
     public $variable;
+    public $auth;
 
-    public function _construct(ProductRepository $product, VariableRepository $variable)
+
+    public function __construct(Authentication $auth, ProductRepository $product, VariableRepository $variable)
     {
-        parent::__construct();
-        $this->product=$product;
-        $this->variable=$variable;
-        
+
+        $this->product = $product;
+        $this->variable = $variable;
+        $this->auth = $auth;
+
     }
-    public function index(Request $request)
+
+    public function index()
     {
+        $user = $this->auth->user();
+        $products = $this->product->whereUser($user->id);
 
+        return view('imonitor::frontend.products.index', compact('products'));
 
-        $oldVar=null;
-        
-        if ((isset($request->variables) && !empty($request->variables))){
-            $filter=['variables'=>$request->variables];
+    }
 
-            $products = $this->product->wherebyFilter($request->page,$take=12, json_decode(json_encode($filter)), $include=null);
-            
-            $oldVar=$request->variables;
+    public function show($id)
+    {
+        $user = $this->auth->user();
 
+        $product = $this->product->find($id);
+        if ($product->user_id == $user->id) {
+            return view('imonitor::frontend.products.show', compact('product'));
         } else {
-            $products = $this->place->paginate(12);
+            return abort(404);
         }
-
-        $variables = $this->variable->all();
-        $tpl = 'imonitor::frontend.index';
-        $ttpl = 'imonitor.frontend.index';
-
-        if (view()->exists($ttpl)) $tpl = $ttpl;
-
-        Return view($tpl, compact('products', 'variables','oldVar'));
-
     }
-    
+
 }
