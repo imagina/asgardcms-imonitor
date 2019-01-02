@@ -13,6 +13,7 @@ use Log;
 use Mockery\CountValidator\Exception;
 use Modules\Ihelpers\Http\Controllers\Api\BaseApiController;
 use Modules\Imonitor\Entities\Record;
+use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\RecordRepository;
 use Modules\Imonitor\Transformers\RecordTransformers;
 use Route;
@@ -23,20 +24,22 @@ use Route;
 class RecordController extends BaseApiController
 {
     private $record;
+    private $product;
 
-    public function __construct(RecordRepository $record)
+    public function __construct(RecordRepository $record, ProductRepository $product)
     {
         parent::__construct();
         $this->record = $record;
+        $this->product=$product;
 
     }
 
     public function index(Request $request)
     {
+
         try {
             //Get Parameters from URL.
             $p = $this->parametersUrl(false, 12, false, []);
-
             //Request to Repository
             $records = $this->record->wherebyFilter($p->page, $p->take, $p->filter, $p->include);
 
@@ -83,8 +86,8 @@ class RecordController extends BaseApiController
     public function store(Request $request)
     {
         try {
-
-            // $request['options'] = $options;
+            $product=$this->product->find($request->product_id);
+            $request['client_id'] = $product->user->id;
             $record = $this->record->create($request->all());
             $status = 200;
             $response = [

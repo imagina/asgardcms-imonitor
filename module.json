@@ -9,7 +9,8 @@
     "providers": [
         "Modules\\Imonitor\\Providers\\ImonitorServiceProvider",
         "Modules\\Imonitor\\Providers\\RouteServiceProvider",
-        "Modules\\Imonitor\\Providers\\EventServiceProvider"
+        "Modules\\Imonitor\\Providers\\EventServiceProvider",
+        "Modules\\Imonitor\\Providers\\BroadcastServiceProvider"
     ],
     "aliases": {},
     "files": [

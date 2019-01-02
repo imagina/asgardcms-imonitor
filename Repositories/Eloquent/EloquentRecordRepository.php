@@ -2,8 +2,9 @@
 
 namespace Modules\Imonitor\Repositories\Eloquent;
 
-use Modules\Imonitor\Repositories\RecordRepository;
 use Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
+use Modules\Imonitor\Events\RecordListEvent;
+use Modules\Imonitor\Repositories\RecordRepository;
 
 class EloquentRecordRepository extends EloquentBaseRepository implements RecordRepository
 {
@@ -60,6 +61,9 @@ class EloquentRecordRepository extends EloquentBaseRepository implements RecordR
                 is_array($filter->variables) ? true : $filter->vatiables = [$filter->variables];
                 $query->whereIn('variable_id', $filter->variables);
             }
+            if (isset($filter->client)) {
+                $query->where('client_id', $filter->client);
+            }
             //Add order for genre
             if (isset($filter->range) && is_array($filter->range)) {
 
@@ -79,6 +83,16 @@ class EloquentRecordRepository extends EloquentBaseRepository implements RecordR
             $take ? $query->take($take) : false; //Set parameter take(limit) if is requesting
             return $query->get();
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function create($data)
+    {
+        $record = $this->model->create($data);
+        event(new RecordListEvent($record, $data));
+        return $record;
     }
 
 }

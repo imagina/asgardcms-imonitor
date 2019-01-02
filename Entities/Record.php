@@ -10,7 +10,7 @@ class Record extends Model
 
     protected $table = 'imonitor__records';
 
-    protected $fillable = ['variable_id', 'product_id', 'value'];
+    protected $fillable = ['variable_id', 'product_id', 'value','client_id'];
 
     public function product()
     {
@@ -21,4 +21,9 @@ class Record extends Model
         return $this->belongsTo(Variable::class);
     }
 
+    public function client()
+    {
+        $driver = config('asgard.user.config.driver');
+        return $this->belongsTo("Modules\\User\\Entities\\{$driver}\\User");
+    }
 }

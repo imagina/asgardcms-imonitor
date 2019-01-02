@@ -19,6 +19,7 @@ return [
         'edit' => 'imonitor::records.edit resource',
         'destroy' => 'imonitor::records.destroy resource',
     ],
+
 // append
 
 

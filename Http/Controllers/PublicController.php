@@ -31,8 +31,12 @@ class PublicController extends AdminBaseController
     public function index()
     {
         $user = $this->auth->user();
-        $products = $this->product->whereUser($user->id);
+        if ($this->auth->hasAccess('imonitor.products.index')) {
+            $products = $this->product->paginate(12);
+        } else {
+            $products = $this->product->whereUser($user->id);
 
+        }
         return view('imonitor::frontend.products.index', compact('products'));
 
     }
@@ -48,6 +52,7 @@ class PublicController extends AdminBaseController
             return abort(404);
         }
     }
+
     public function historic($id)
     {
         $user = $this->auth->user();

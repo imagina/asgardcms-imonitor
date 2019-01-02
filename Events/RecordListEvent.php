@@ -8,9 +8,11 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Modules\Imonitor\Entities\Record;
 
-class VariblesListEvent
+
+class RecordListEvent implements ShouldBroadcastNow
 {
     use SerializesModels, InteractsWithSockets;
 
@@ -20,23 +22,22 @@ class VariblesListEvent
      * @return void
      */
 
-    public $record;
+    public $newRecord;
 
-    public function __construct(Record $record)
+    public function __construct(Record $newRecord)
     {
-        $this->record=$record;
+        $this->newRecord=$newRecord;
     }
     public function broadcastWith()
     {
-        // This must always be an array. Since it will be parsed with json_encode()
         return [
-            $this->record
+            $this->newRecord
         ];
     }
 
     public function broadcastAs()
     {
-        return 'record';
+        return 'newRecord';
     }
 
     /**
@@ -46,6 +47,6 @@ class VariblesListEvent
      */
     public function broadcastOn()
     {
-        return new Channel('register-'.$this->record->product->id);
+        return new Channel('record-'.$this->newRecord->product->id);
     }
 }

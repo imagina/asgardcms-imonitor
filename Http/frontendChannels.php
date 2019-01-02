@@ -1,5 +1,5 @@
 <?php
 
-Broadcast::channel('register-{id}', function ($user) {
+Broadcast::channel('record-{id}', function ($user) {
     return $user;
 });
