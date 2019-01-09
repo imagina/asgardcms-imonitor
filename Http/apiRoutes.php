@@ -114,6 +114,11 @@ $router->group(['prefix'=>'imonitor'],function (Router $router){
             'uses' => 'RecordController@store',
         ]);
         $router->post('/save', [
+            'as' => 'imonitor.api.record.register',
+            'uses' => 'RecordController@register',
+            'middleware' => ['auth:api']
+        ]);
+        $router->post('/', [
             'as' => 'imonitor.api.record.store',
             'uses' => 'RecordController@store',
             'middleware' => ['auth:api']

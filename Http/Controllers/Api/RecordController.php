@@ -16,6 +16,7 @@ use Modules\Imonitor\Entities\Record;
 use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\RecordRepository;
 use Modules\Imonitor\Transformers\RecordTransformers;
+use Illuminate\Support\Facades\Auth;
 use Route;
 
 //Base API
@@ -33,6 +34,7 @@ class RecordController extends BaseApiController
         $this->product=$product;
 
     }
+
 
     public function index(Request $request)
     {
@@ -87,21 +89,54 @@ class RecordController extends BaseApiController
     {
         try {
             $product=$this->product->find($request->product_id);
-            $request['client_id'] = $product->user->id;
-            $record = $this->record->create($request->all());
-            $status = 200;
-            $response = [
-                'susses' => [
-                    'code' => '201',
-                    "source" => [
-                        "pointer" => url($request->path())
-                    ],
-                    "title" => trans('core::core.messages.resource created', ['name' => trans('imonitor::common.singular')]),
-                    "detail" => [
-                        'id' => $record->id
+            $productVariables=array();
+            foreach ($product->variables as $index=>$variable){
+                $productVariables[$index]=$variable->id;
+            }
+            if(in_array($request->variable_id,$productVariables)) {
+                if ($product->productUser->id == Auth::user()->id) {
+
+
+                    $request['client_id'] = $product->user->id;
+                    $record = $this->record->create($request->all());
+                    $status = 200;
+                    $response = [
+                        'susses' => [
+                            'code' => '201',
+                            "source" => [
+                                "pointer" => url($request->path())
+                            ],
+                            "title" => trans('core::core.messages.resource created', ['name' => trans('imonitor::common.singular')]),
+                            "detail" => [
+                                'id' => $record->id
+                            ]
+                        ]
+                    ];
+                } else {
+                    $status = 401;
+                    $response = [
+                        'susses' => [
+                            'code' => '401',
+                            "source" => [
+                                "pointer" => url($request->path())
+                            ],
+                            "title" => '401 Unauthorized',
+                        ]
+                    ];
+                }
+            }else {
+                $status = 404;
+                $response = [
+                    'susses' => [
+                        'code' => '404',
+                        "source" => [
+                            "pointer" => url($request->path())
+                        ],
+                        "title" => 'Variable not Fount',
                     ]
-                ]
-            ];
+                ];
+            }
+
         } catch (\Exception $e) {
             Log::error($e);
             $status = 500;
@@ -117,6 +152,50 @@ class RecordController extends BaseApiController
         }
         return response()->json($response, $status ?? 200);
 
+    }
+
+    public function register(Request $request)
+    {
+        \Log::info($request->all());
+        try{
+            $items=$request->all();
+            $regiter=array();
+            foreach ($items as $index=>$item) {
+                $product=$this->product->find($item['product_id']);
+                $item['client_id'] = $product->user->id;
+                $data= new \Illuminate\Http\Request();
+                $data->setMethod('POST');
+                $data->request->add($item);
+                $regiter[$index]=$this->store($data);
+            }
+            $status = 200;
+            $response = [
+                'susses' => [
+                    'code' => '201',
+                    "source" => [
+                        "pointer" => url($request->path())
+                    ],
+                    "title" => trans('core::core.messages.resource created', ['name' => trans('imonitor::common.singular')]),
+                    "detail" => [
+                        $regiter
+                    ]
+                ]
+            ];
+        }catch (\Exception $e){
+            Log::error($e);
+            $status = 500;
+            $response = ['errors' => [
+                "code" => "501",
+                "source" => [
+                    "pointer" => url($request->path()),
+                ],
+                "title" => "Error Query Records",
+                "detail" => $e->getMessage()
+            ]
+            ];
+        }
+
+        return response()->json($response, $status ?? 200);
     }
 
     public function update(Record $record, Request $request)

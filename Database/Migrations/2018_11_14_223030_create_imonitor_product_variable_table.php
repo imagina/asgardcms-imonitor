@@ -14,10 +14,12 @@ class CreateImonitorProductVariableTable extends Migration
     public function up()
     {
         Schema::create('imonitor_product_variable', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('variable_id');
-            $table->integer('product_id');
-
+            $table->integer('variable_id')->unsigned()->nullable();
+            $table->integer('product_id')->unsigned()->nullable();
+            $table->foreign('variable_id')->references('id')->on('imonitor__variables')->onDelete('restrict');
+            $table->foreign('product_id')->references('id')->on('imonitor__products')->onDelete('restrict');
             $table->timestamps();
         });
     }

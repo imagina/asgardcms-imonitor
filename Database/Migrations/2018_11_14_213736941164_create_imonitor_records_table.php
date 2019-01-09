@@ -18,6 +18,8 @@ class CreateImonitorRecordsTable extends Migration
             $table->integer('variable_id')->unsigned();
             $table->integer('product_id')->unsigned();
             $table->double('value');
+            $table->foreign('variable_id')->references('id')->on('imonitor__variables')->onDelete('restrict');
+            $table->foreign('product_id')->references('id')->on('imonitor__products')->onDelete('restrict');
             $table->timestamps();
         });
     }
@@ -29,6 +31,10 @@ class CreateImonitorRecordsTable extends Migration
      */
     public function down()
     {
+        Schema::table('', function (Blueprint $table) {
+            $table->dropForeign(['product_id']);
+            $table->dropForeign(['variable_id']);
+        });
         Schema::dropIfExists('imonitor__records');
     }
 }

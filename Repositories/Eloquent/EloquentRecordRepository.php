@@ -94,5 +94,12 @@ class EloquentRecordRepository extends EloquentBaseRepository implements RecordR
         event(new RecordListEvent($record, $data));
         return $record;
     }
+    public   function whereProduct($id){
+        $query = $this->model->query();
+        $query->with('product','variable');
+        $query->where('product_id',$id);
+        $query->orderBy('created_at','desc');
+        return $query->paginate(400);
+    }
 
 }

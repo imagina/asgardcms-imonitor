@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddClientRecordsTable extends Migration
+class AddImonitorClientRecordsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,6 +15,7 @@ class AddClientRecordsTable extends Migration
     {
         Schema::table('imonitor__records', function (Blueprint $table) {
             $table->integer('client_id')->unsigned();
+            $table->foreign('client_id')->references('id')->on(config('auth.table', 'users'))->onDelete('restrict');
 
         });
     }
@@ -26,7 +27,7 @@ class AddClientRecordsTable extends Migration
      */
     public function down()
     {
-        Schema::table('', function (Blueprint $table) {
+        Schema::table('imonitor__records', function (Blueprint $table) {
             $table->dropColumn('client_id');
             $table->dropForeign(['client_id']);
         });

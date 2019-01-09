@@ -4,11 +4,12 @@ namespace Modules\Imonitor\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 use Modules\Imonitor\Entities\Record;
 use Modules\Imonitor\Http\Requests\CreateRecordRequest;
 use Modules\Imonitor\Http\Requests\UpdateRecordRequest;
+use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\RecordRepository;
-use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 
 class RecordController extends AdminBaseController
 {
@@ -16,11 +17,12 @@ class RecordController extends AdminBaseController
      * @var RecordRepository
      */
     private $record;
+    private $product;
 
-    public function __construct(RecordRepository $record)
+    public function __construct(RecordRepository $record, ProductRepository $product)
     {
         parent::__construct();
-
+        $this->product = $product;
         $this->record = $record;
     }
 
@@ -29,11 +31,12 @@ class RecordController extends AdminBaseController
      *
      * @return Response
      */
-    public function index()
+    public function index($product)
     {
-        //$records = $this->record->all();
+        $records = $this->record->whereProduct($product);
+        $product = $this->product->find($product);
 
-        return view('imonitor::admin.records.index', compact(''));
+        return view('imonitor::admin.records.index', compact('records', 'product'));
     }
 
     /**

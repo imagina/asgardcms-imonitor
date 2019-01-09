@@ -46,9 +46,10 @@ class PublicController extends AdminBaseController
         $user = $this->auth->user();
 
         $product = $this->product->find($id);
-        if ($product->user_id == $user->id) {
+        if (($this->auth->hasAccess('imonitor.products.index')) ||($product->user_id == $user->id) ) {
             return view('imonitor::frontend.products.show', compact('product'));
-        } else {
+        }
+         else {
             return abort(404);
         }
     }
@@ -58,7 +59,7 @@ class PublicController extends AdminBaseController
         $user = $this->auth->user();
 
         $product = $this->product->find($id);
-        if ($product->user_id == $user->id) {
+        if (($this->auth->hasAccess('imonitor.products.index')) ||($product->user_id == $user->id)) {
             return view('imonitor::frontend.products.historic', compact('product'));
         } else {
             return abort(404);

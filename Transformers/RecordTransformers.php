@@ -16,7 +16,7 @@ class RecordTransformers extends Resource
 
     public function toArray($request){
 
-        return [
+        $data=[
             'id' => $this->id,
             'variable_id' => $this->variable_id,
             'product_id' => $this->product_id,
@@ -24,6 +24,9 @@ class RecordTransformers extends Resource
             'created_at' => ($this->created_at),
             'updated_at' => ($this->updated_at)
         ];
+
+        return $data;
+
     }
 
 

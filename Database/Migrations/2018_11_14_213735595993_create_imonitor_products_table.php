@@ -16,10 +16,9 @@ class CreateImonitorProductsTable extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             $table->integer('product_user_id')->unsigned()->default(0);
-            $table->integer('user_id')->unsigned();
+            $table->integer('user_id')->unsigned()->nullable();
             $table->text('address')->nullable();
             $table->text('options')->default('')->nullable();
-            //$table->foreign('product_user_id')->references('id')->on(config('auth.table', 'users'))->onDelete('restrict');
             $table->foreign('user_id')->references('id')->on(config('auth.table', 'users'))->onDelete('restrict');
             // Your fields
             $table->timestamps();
