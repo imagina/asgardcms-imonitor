@@ -20,7 +20,7 @@ class Variable extends Model
      */
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'imonitor_product_variable');
+        return $this->belongsToMany(Product::class, 'imonitor_product_variable')->withPivot('max_value', 'min_value');
     }
 
     public function records()

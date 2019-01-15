@@ -6,6 +6,38 @@
 @stop
 @section('content')
 	<style>
+		.page-item a {
+			background-color: #FA7F0E;
+		}
+		.page-item:not(.disabled) a:hover {
+			background-color: #ef7b11 !important
+		}
+		.page-item.disabled a {
+		    pointer-events: none;
+		    background-color: #f3a761 !important
+		}
+		.load-span{
+			position: relative;
+		}
+		.load-span::after,
+		.load-span::before {
+			content: '';
+			position: absolute;
+			z-index: 1000;
+			width: 100%;
+			height: 100%;
+			left: 0;
+			top: 0;
+			background-color: #8a8a8a3d;
+		}
+		.load-span::after{
+			background-color: white;
+			z-index: 999;
+		}
+		.load-span.hide::after,
+		.load-span.hide::before {
+			content: none;
+		}
 		.load-vue{ position: relative; }
 		.load-vue:before
 		{
@@ -76,16 +108,33 @@
 
 			<!-- TITLE -->
 			<div class="row">
-				<div class="col-12 title text-dark text-left mb-5">
-	                <div class="sub text-primary"> {{$product->title}} </div>
+				<div class="col-12 title text-dark text-left mb-3">
+					<h1 class="sub text-primary"> {{$product->title}} </h1>
 	                <div class="line mt-2 bg-secundary"></div>
-					<div class="h4">
-						{!! $product->description !!}
-					</div>
-		            <div class="d-block text-center">
-		            	<input type="text" name="datetimes" id="inputDatatimes" class="form-control datetimes" disabled="true"/>
-		                <button class="btn btn-primary mt-2" v-on:click="getDateChart()">GRAFICAR</button>
-		            </div>
+                    <div class="row">
+                        <div class="col-md-8 col-sm-12">
+                            <div class="h4 mt-5">
+                                {!! $product->description !!}
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            @if(isset($product->address)&&!empty($product->address))
+                                @php
+                                    $address=json_decode($product->address)
+                                @endphp
+                                <div class="map bg-light">
+                                    <div class="content mt-5">
+                                        <div id="map_canvas" style="width:100%; height:314px"></div>
+                                    </div>
+
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <a class="btn btn-primary p-1 ml-1" href="{{ url('monitor/'.$product->id) }}" data-toggle="tooltip" data-placement="top" title="Tiempo Rear">
+                        <i class="fa fa-area-chart text-white" aria-hidden="true"></i>
+                        <span class="d-none d-md-inline-block text-white">Ver el tiempo real</span>
+                    </a>
 	            </div>
 			</div>
 			<!-- END-TITLE -->
@@ -94,49 +143,84 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="progress" v-if="loading" style="height: 3px;">
-					  <div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+					  	<div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
 					</div>
 					<div id="highcharts" v-bind:class="{ 'load-vue': loading }"></div>
 				</div>
 			</div>
-			<!-- END-PRODUCTS -->
 
 			<div class="row">
-				<div class="col-12">
-					<table class="table table-striped">
-						<thead>
-						<tr>
-							<th scope="col">{{}}</th>
-							<th scope="col">First</th>
-							<th scope="col">Last</th>
-							<th scope="col">Handle</th>
-						</tr>
-						</thead>
-						<tbody>
-						<tr>
-							<th scope="row">1</th>
-							<td>Mark</td>
-							<td>Otto</td>
-							<td>@mdo</td>
-						</tr>
-						<tr>
-							<th scope="row">2</th>
-							<td>Jacob</td>
-							<td>Thornton</td>
-							<td>@fat</td>
-						</tr>
-						<tr>
-							<th scope="row">3</th>
-							<td>Larry</td>
-							<td>the Bird</td>
-							<td>@twitter</td>
-						</tr>
-						</tbody>
-					</table>
+				<div class="col-12 my-2">
+	            	<div class="d-block text-center">
+	            		<input type="text" name="datetimes" id="inputDatatimes" class="form-control datetimes load-span" disabled="true"/>
+	            	    <button class="btn btn-primary load-span" v-on:click="getDateChart(true)" style="margin-top: -6px;">GRAFICAR</button>
+	            	</div>
+				</div>
+				<div class="col-12 mb-2 load-span">
+					<!-- PAGINADOR -->
+					<div class="col-12 text-right my-2 text-center" v-if="page.total > 1">
+					    <nav aria-label="Page navigation example">
+					        <ul class="pagination justify-content-center mb-0">
+					            <!-- btn go to the first page -->
+					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage == 1 || loading }">
+					                <a class="page-link" v-on:click="change_page(1)" title="last page">
+					                	<i class="fa fa-angle-double-left" aria-hidden="true"></i>
+					                    <span class="sr-only">Last</span>
+					                </a>
+					            </li>
+					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage < 2 || loading}">
+					                <a class="page-link" v-on:click="change_page(page.currentPage - 1)" title="previo page">
+					                    <i class="fa fa-angle-left"></i>
+					                    <span class="sr-only">previous</span>
+					                </a>
+					            </li>
+					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage == page.lastPage || loading }">
+					                <a class="page-link" v-on:click="change_page(page.currentPage + 1 )" title="next page">
+					                    <i class="fa fa-angle-right"></i>
+					                    <span class="sr-only">next</span>
+					                </a>
+					            </li>
+					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage == page.lastPage || loading }">
+					                <a class="page-link" v-on:click="change_page(page.lastPage)" title="last page">
+					                	<i class="fa fa-angle-double-right" aria-hidden="true"></i>
+					                    <span class="sr-only">Last</span>
+					                </a>
+					            </li>
+							</ul>
+					    </nav>
+					    <div>@{{page.currentPage}} de @{{page.lastPage}} Paginas | <span>Registros: @{{page.total}}</span></div>
+					</div>
+				</div>
+				<div class="col-12 mt-2">
+					<div class="table-responsive">
+						<table class="table load-span">
+							<thead>
+								<tr>
+									<th v-for="serie in series">
+										@{{serie.title}}
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-if="dataChart.noData">
+									<td v-for="data in dataChart.data">
+										<div v-for="val in data.data" class="py-2 border-bottom">
+											@{{val[0]}} | <span class="badge badge-secondary">@{{val[1]}}</span>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="alert alert-warning text-center" v-if="!dataChart.noData">
+							<strong>NO</strong> HAY DATA PARA ESTE RANGO DE FECHAS...
+						</div>
+					</div>
 				</div>
 			</div>
+			<!-- END-PRODUCTS -->
 		</div>
 	</div>
+
 @stop
 
 @section('scripts')
@@ -158,8 +242,16 @@
                 loading: true,
                 series: {!! json_encode($product->variables) !!},
                 product_id: {{ $product->id }},
-                client_id: {{ $currentUser->id }},
+                client_id: {{ Auth::id() }},
+                take: 100,
+                page: {
+                	total: 0,
+                	lastPage: 0,
+                	perPage: 0,
+                	currentPage: 1
+                },
         		dataChart: {
+        			noData: true,
                 	data: [],
                 	title: '{{$product->title}}',
         			chart: null,
@@ -170,10 +262,13 @@
             mounted() {
         		this.getDateChart();
                 this.daterangepicker();
+                $('.load-span').addClass('hide');
             },
         	methods: {
-        		getDateChart: function ()
+        		getDateChart: function (reset = false)
         		{
+        			if(reset)
+        				this.page.currentPage = 1;
                     this.renderChart();
                     this.loading = true;
                     this.dataChart.data = [];
@@ -188,31 +283,38 @@
                                 	this.dataChart.fromDate,
                                 	this.dataChart.toDate
                                 ],
-                                //cliente: this.client_id
+                                cliente: this.client_id,
                             },
-                            take:100,
+                            take: this.take,
+                            page: this.page.currentPage
                         }
                     })
                 	.then(response => {
-                    	console.log(response.data.data);
+                		this.dataChart.noData = response.data.data.length == 0? false : true;
 						response.data.data.forEach(element => {
 							this.dataChart.data.forEach((value, index) => {
 								if(value.id == element.variable_id){
-									this.dataChart.chart.series[index].addPoint([
-										+moment(),
+                        			// time = moment(element.created_at);
+                        			// console.log(element.created_at);
+                        			// time = new Date(time).getTime();
+                        			time = element.created_at;
+									this.dataChart.data[index].data.push([
+										time,
 										parseFloat(element.value)
 									]);
 								}
 							});
 						});
-                    }).finally(() => {
-                    	console.log(this.dataChart.data);
-                    	this.loading = false;
-                    })
+							this.page = response.data.meta.page;
+                    }).finally(() => { this.loading = false; this.renderChart() })
         		},
-        		renderChart: function (){
+        		renderChart: function () {
 					this.dataChart.chart = Highcharts.chart('highcharts', {
+            			chart: {
+            			    zoomType: 'x'
+            			},
 					    title: { text: this.dataChart.title },
+						subtitle: { text: '' },
 					    xAxis: {
 					        type: 'datetime',
 					        dateTimeLabelFormats:
@@ -225,16 +327,23 @@
 					            year: '%Y',
 					        },
 						    labels: {
-						      format: '{value: %e/%m/%y %H:%M:%S}'
+						      format: '{value:  %A, %b %e, %H:%M:%S}'
 						    },
+					        title: { text: 'Date' }
 					    },
+                        tooltip: {
+                            headerFormat: '<b>{series.name}</b><br>',
+                            pointFormat: '{point.x:%B/%e/%Y %H:%M:%S }: valor:{point.y}'
+                      	},
 					    yAxis: { title: { text: 'Valores' } },
-					    exporting: { enabled: true },
-					    series: this.dataChart.data,
+					    series: this.dataChart.data
 					});
 				},
-				daterangepicker: function ()
-				{
+				change_page: function (id) {
+					this.page.currentPage = id;
+					this.getDateChart();
+				},
+				daterangepicker: function () {
 				    $('#inputDatatimes').daterangepicker({
 				        timePicker: true,
 						startDate: startDate,
@@ -278,8 +387,6 @@
 				        },
 				        datetimes: 'center'
 				    },(start, end, label) => {
-				    	// console.log(this.dataChart.fromDate);
-				    	// console.log(this.dataChart.toDate);
 						this.dataChart.fromDate= start.format('YYYY/MM/DD HH:mm:ss');
 						this.dataChart.toDate = end.format('YYYY/MM/DD HH:mm:ss');
 				    });
@@ -288,4 +395,37 @@
 			}
         });
     </script>
+    <script type='text/javascript'
+        src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
+    @if(isset($product->address)&&!empty($product->address))
+    <script type="text/javascript">
+
+        var geocoder;
+        var map;
+        var marker;
+
+        function initialize() {
+            var latitude ={{$address->lattitude}};
+            var longitude ={{$address->longitude}};
+            var OLD = new google.maps.LatLng(latitude, longitude);
+            var options = {
+                zoom: 16,
+                center: OLD,
+                mapTypeId: google.maps.MapTypeId.ROADMAP,// ROADMAP | SATELLITE | HYBRID | TERRAIN
+            };
+            map = new google.maps.Map(document.getElementById("map_canvas"), options);
+            geocoder = new google.maps.Geocoder();
+            marker = new google.maps.Marker({
+                map: map,
+                draggable: false,
+                position: OLD
+            });
+        }
+
+        $(document).ready(function() {
+            initialize();
+
+        });
+    </script>
+    @endif
 @stop

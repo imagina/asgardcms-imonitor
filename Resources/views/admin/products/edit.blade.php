@@ -40,6 +40,48 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xs-12  col-md-6">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <label>{{trans('imonitor::products.form.user assign')}}</label>
+                    </div>
+                    <div class="box-body">
+                        <select name="user_id" id="user" class="form-control">
+                            @foreach ($users as $user)
+                                <option value="{{$user->id }}" {{$user->id == $currentUser->id ? 'selected' : ''}}>{{$user->present()->fullname()}}
+                                    - ({{$user->email}})
+                                </option>
+                            @endforeach
+                        </select><br>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <div class="box box-primary">
+                    <div class="box-header">
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <label>{{trans('imonitor::products.form.operator assign')}}</label>
+                    </div>
+                    <div class="box-body">
+                        <select name="user_id" id="user" class="form-control">
+                            @foreach ($operators as $operator)
+                                <option value="{{$operator->id }}" {{$operator->id == $product->user_id ? 'selected' : ''}}>{{$operator->present()->fullname()}}
+                                    - ({{$operator->email}})
+                                </option>
+                            @endforeach
+                        </select><br>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-12">
                 <div class="box box-primary">
                     <div class="box-header">
@@ -102,27 +144,6 @@
                                        href="{{ route('admin.user.user.edit', [$product->productUser->id]) }}">{{ trans('user::users.title.edit-user') }}</a>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 ">
-                    <div class="box box-primary">
-                        <div class="box-header">
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                            class="fa fa-minus"></i>
-                                </button>
-                            </div>
-                            <label>{{trans('imonitor::products.form.user assign')}}</label>
-                        </div>
-                        <div class="box-body">
-                            <select name="user_id" id="user" class="form-control">
-                                @foreach ($users as $user)
-                                    <option value="{{$user->id }}" {{$user->id == $currentUser->id ? 'selected' : ''}}>{{$user->present()->fullname()}}
-                                        - ({{$user->email}})
-                                    </option>
-                                @endforeach
-                            </select><br>
                         </div>
                     </div>
                 </div>

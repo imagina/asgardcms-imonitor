@@ -1,5 +1,9 @@
 <?php
 
 return [
-    'name' => 'Imonitor'
+    'name' => 'Imonitor',
+    'roles'=>[
+        'client'=>'clientes',
+        'operator'=>'operador'
+    ]
 ];

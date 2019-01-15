@@ -23,6 +23,7 @@ class EloquentRecordRepository extends EloquentBaseRepository implements RecordR
         if ($filter) {
             //Filter by slug
             if (isset($filter->product)) {
+
                 $query->where('product_id', $filter->product);
             }
 

@@ -109,6 +109,10 @@ $router->group(['prefix'=>'imonitor'],function (Router $router){
             'as' => 'imonitor.api.records.index',
             'uses' => 'RecordController@index',
         ]);
+        $router->get('historic', [
+            'as' => 'imonitor.api.records.historic',
+            'uses' => 'RecordController@historic',
+        ]);
         $router->get('{apimonitorrecord}', [
             'as' => 'imonitor.api.records',
             'uses' => 'RecordController@store',

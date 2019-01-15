@@ -12,6 +12,7 @@ use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\VariableRepository;
 use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 use Modules\User\Repositories\UserRepository;
+use Modules\User\Repositories\RoleRepository;
 use Modules\User\Transformers\UserProfileTransformer;
 
 class ProductController extends AdminBaseController
@@ -22,14 +23,16 @@ class ProductController extends AdminBaseController
     private $product;
     private $variable;
     private $user;
+    private $role;
 
-    public function __construct(ProductRepository $product, VariableRepository $variable, UserRepository $user)
+    public function __construct(ProductRepository $product, VariableRepository $variable, UserRepository $user, RoleRepository $role)
     {
         parent::__construct();
 
         $this->product = $product;
         $this->variable = $variable;
         $this->user=$user;
+        $this->role=$role;
     }
 
     /**
@@ -52,9 +55,10 @@ class ProductController extends AdminBaseController
     public function create()
     {
         $variables= $this->variable->all();
-        $users = $this->user->all();
 
-        return view('imonitor::admin.products.create', compact('variables','users'));
+        $users = $this->role->findByName(config('asgard.imonitor.config.roles.client','client'))->users;
+        $operators= $this->role->findByName(config('asgard.imonitor.config.roles.operator','operator'))->users;
+        return view('imonitor::admin.products.create', compact('variables','users', 'operators'));
     }
 
     /**
@@ -89,9 +93,10 @@ class ProductController extends AdminBaseController
     public function edit(Product $product)
     {
         $variables= $this->variable->all();
-        $users = $this->user->all();
+        $users = $this->role->findByName(config('asgard.imonitor.config.roles.client','client'))->users;
+        $operators= $this->role->findByName(config('asgard.imonitor.config.roles.operator','operator'))->users;
 
-        return view('imonitor::admin.products.edit', compact('product','variables','users'));
+        return view('imonitor::admin.products.edit', compact('product','variables','users','operators'));
     }
 
     /**
@@ -103,6 +108,7 @@ class ProductController extends AdminBaseController
      */
     public function update(Product $product, UpdateProductRequest $request)
     {
+
         try{
             $this->product->update($product, $request->all());
 

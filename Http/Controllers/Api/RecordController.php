@@ -9,6 +9,7 @@
 namespace Modules\Imonitor\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Log;
 use Mockery\CountValidator\Exception;
 use Modules\Ihelpers\Http\Controllers\Api\BaseApiController;
@@ -16,7 +17,6 @@ use Modules\Imonitor\Entities\Record;
 use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\RecordRepository;
 use Modules\Imonitor\Transformers\RecordTransformers;
-use Illuminate\Support\Facades\Auth;
 use Route;
 
 //Base API
@@ -31,7 +31,7 @@ class RecordController extends BaseApiController
     {
         parent::__construct();
         $this->record = $record;
-        $this->product=$product;
+        $this->product = $product;
 
     }
 
@@ -53,6 +53,43 @@ class RecordController extends BaseApiController
         } catch (\Exception $e) {
             //Message Error
             $status = 500;
+            $response = [
+                "errors" => $e->getMessage()
+            ];
+        }
+
+        return response()->json($response, $status ?? 200);
+    }
+
+    public function historic(Request $request)
+    {
+
+        try {
+            //Get Parameters from URL.
+            $p = $this->getParamsRequest($request);
+            //Request to Repository
+            $records = $this->record->wherebyFilter($p->page, $p->take, $p->filter, $p->include);
+            $data = array();
+            $variable = array();
+            if (count($records)) {
+                foreach ($records as $record) {
+                    $val = ['date' => ($record->created_at),
+                        'value' => floatval($record->value)];
+                    if (!array_key_exists($record->variable_id, $variable)) {
+                        $variable{$record->variable_id} = $val;
+                    } else {
+                        array_push($variable{$record->variable_id}, $val);
+                    }
+                }
+            }
+            //Response
+            $response = ["data" => $variable];
+            //If request pagination add meta-page
+            $p->page ? $response["meta"] = ["page" => $this->pageTransformer($variable)] : false;
+        } catch (\Exception $e) {
+            //Message Error
+            $status = 500;
+            Log::error($e);
             $response = [
                 "errors" => $e->getMessage()
             ];
@@ -88,12 +125,12 @@ class RecordController extends BaseApiController
     public function store(Request $request)
     {
         try {
-            $product=$this->product->find($request->product_id);
-            $productVariables=array();
-            foreach ($product->variables as $index=>$variable){
-                $productVariables[$index]=$variable->id;
+            $product = $this->product->find($request->product_id);
+            $productVariables = array();
+            foreach ($product->variables as $index => $variable) {
+                $productVariables[$index] = $variable->id;
             }
-            if(in_array($request->variable_id,$productVariables)) {
+            if (in_array($request->variable_id, $productVariables)) {
                 if ($product->productUser->id == Auth::user()->id) {
 
 
@@ -124,7 +161,7 @@ class RecordController extends BaseApiController
                         ]
                     ];
                 }
-            }else {
+            } else {
                 $status = 404;
                 $response = [
                     'susses' => [
@@ -157,16 +194,16 @@ class RecordController extends BaseApiController
     public function register(Request $request)
     {
         \Log::info($request->all());
-        try{
-            $items=$request->all();
-            $regiter=array();
-            foreach ($items as $index=>$item) {
-                $product=$this->product->find($item['product_id']);
+        try {
+            $items = $request->all();
+            $regiter = array();
+            foreach ($items as $index => $item) {
+                $product = $this->product->find($item['product_id']);
                 $item['client_id'] = $product->user->id;
-                $data= new \Illuminate\Http\Request();
+                $data = new \Illuminate\Http\Request();
                 $data->setMethod('POST');
                 $data->request->add($item);
-                $regiter[$index]=$this->store($data);
+                $regiter[$index] = $this->store($data);
             }
             $status = 200;
             $response = [
@@ -181,7 +218,7 @@ class RecordController extends BaseApiController
                     ]
                 ]
             ];
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             Log::error($e);
             $status = 500;
             $response = ['errors' => [

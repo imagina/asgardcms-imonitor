@@ -111,6 +111,14 @@ class EloquentProductRepository extends EloquentBaseRepository implements Produc
     public function update($model, $data)
     {//dd($data);
         $model->update($data);
+            $variables=array_get($data, 'variables', []);
+        foreach ( $variables as  $index =>$variable){
+            if(!array_key_exists('variable_id',$variable)){
+                unset($variables[$index]);
+            }
+        }
+
+        $data['variables']=$variables;
         $model->variables()->sync(array_get($data, 'variables', []));
         return $model;
     }
@@ -121,7 +129,7 @@ class EloquentProductRepository extends EloquentBaseRepository implements Produc
      */
     public function whereUser($id)
     {
-        $query = $this->model->with('translations')->where('user_id',$id)->paginate(12);
+        $query = $this->model->with('translations')->where('user_id',$id)->orWhere('operator_id',$id)->paginate(12);
         return $query;
     }
 
