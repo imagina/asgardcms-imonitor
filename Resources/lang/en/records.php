@@ -14,6 +14,7 @@ return [
         'create record' => 'Create a record',
     ],
     'table' => [
+        'value'=>'Value'
     ],
     'form' => [
     ],

@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Routing\Router;
+
 /** @var Router $router */
 
-$router->group(['prefix' =>'/imonitor'], function (Router $router) {
-    $router->group(['prefix' =>'/products'], function (Router $router) {
+$router->group(['prefix' => '/imonitor'], function (Router $router) {
+    $router->group(['prefix' => '/products'], function (Router $router) {
         $router->bind('imonitoradproduct', function ($id) {
             return app('Modules\Imonitor\Repositories\ProductRepository')->find($id);
         });
@@ -39,7 +40,7 @@ $router->group(['prefix' =>'/imonitor'], function (Router $router) {
             'middleware' => 'can:imonitor.products.destroy'
         ]);
     });
-    $router->group(['prefix' =>'/variables'], function (Router $router) {
+    $router->group(['prefix' => '/variables'], function (Router $router) {
         $router->bind('imonitoradvariable', function ($id) {
             return app('Modules\Imonitor\Repositories\VariableRepository')->find($id);
         });
@@ -77,7 +78,7 @@ $router->group(['prefix' =>'/imonitor'], function (Router $router) {
     });
 
 
-    $router->group(['prefix' =>'/records'], function (Router $router) {
+    $router->group(['prefix' => '/records'], function (Router $router) {
         $router->bind('record', function ($id) {
             return app('Modules\Imonitor\Repositories\RecordRepository')->find($id);
         });
@@ -113,6 +114,40 @@ $router->group(['prefix' =>'/imonitor'], function (Router $router) {
         ]);
 // append
     });
-
+    $router->group(['prefix' => 'alerts'], function (Router $router) {
+        $router->bind('alert', function ($id) {
+            return app('Modules\Imonitor\Repositories\AlertRepository')->find($id);
+        });
+        $router->get('{product}/index', [
+            'as' => 'admin.imonitor.alert.index',
+            'uses' => 'AlertController@index',
+            'middleware' => 'can:imonitor.alerts.index'
+        ]);
+        $router->get('/create', [
+            'as' => 'admin.imonitor.alert.create',
+            'uses' => 'AlertController@create',
+            'middleware' => 'can:imonitor.alerts.create'
+        ]);
+        $router->post('/', [
+            'as' => 'admin.imonitor.alert.store',
+            'uses' => 'AlertController@store',
+            'middleware' => 'can:imonitor.alerts.create'
+        ]);
+        $router->get('/{alert}/edit', [
+            'as' => 'admin.imonitor.alert.edit',
+            'uses' => 'AlertController@edit',
+            'middleware' => 'can:imonitor.alerts.edit'
+        ]);
+        $router->put('/{alert}', [
+            'as' => 'admin.imonitor.alert.update',
+            'uses' => 'AlertController@update',
+            'middleware' => 'can:imonitor.alerts.edit'
+        ]);
+        $router->delete('/{alert}', [
+            'as' => 'admin.imonitor.alert.destroy',
+            'uses' => 'AlertController@destroy',
+            'middleware' => 'can:imonitor.alerts.destroy'
+        ]);
+    });
 
 });

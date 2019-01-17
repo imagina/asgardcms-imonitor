@@ -2,12 +2,12 @@
 
 @section('content-header')
     <h1>
-        {{ trans('imonitor::records.title.records') }} - {{$product->title}} - {{$product->user->present()->fullname() ??''}}
+        {{ trans('imonitor::alerts.title.alerts') }} - {{$product->title}} - {{$product->user->present()->fullname() ??''}}
     </h1>
     <ol class="breadcrumb">
         <li><a href="{{ route('dashboard.index') }}"><i
                         class="fa fa-dashboard"></i> {{ trans('core::core.breadcrumb.home') }}</a></li>
-        <li class="active">{{ trans('imonitor::records.title.records') }}</li>
+        <li class="active">{{ trans('imonitor::alerts.title.alerts') }}</li>
     </ol>
 @stop
 
@@ -15,12 +15,7 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="row">
-                <div class="btn-group pull-right" style="margin: 0 15px 15px 0;">
-                    <a href="{{ route('admin.imonitor.record.create') }}" class="btn btn-primary btn-flat"
-                       style="padding: 4px 10px;">
-                        <i class="fa fa-pencil"></i> {{ trans('imonitor::records.button.create record') }}
-                    </a>
-                </div>
+
             </div>
             <div class="box box-primary">
                 <div class="box-header">
@@ -34,24 +29,30 @@
                                 <th>Id</th>
                                 <th>{{ trans('imonitor::variables.title.variables') }}</th>
                                 <th>{{ trans('imonitor::records.table.value') }}</th>
+                                <th>{{ trans('imonitor::alerts.table.status') }}</th>
                                 <th>{{ trans('core::core.table.created at') }}</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <?php if (isset($records)): ?>
-                            <?php foreach ($records as $record): ?>
+                            <?php if (isset($alerts)): ?>
+                            <?php foreach ($alerts as $alert): ?>
                             <tr>
                                 <td>
-                                    {{ $record->id }}
+                                    {{ $alert->id }}
                                 </td>
                                 <td>
-                                    {{ $record->variable->title??'' }}
+                                    {{ $alert->record->variable->title??'' }}
                                 </td>
                                 <td>
-                                    {{ $record->value }}
+                                    {{ $alert->record->value }}
                                 </td>
                                 <td>
-                                    {{ $record->created_at }}
+                                     <span class="label {{$alert->present()->statusLabelClass}}">
+                                            {{ $alert->present()->status}}
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ $alert->created_at }}
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -61,7 +62,8 @@
                             <tr>
                                 <th>Id</th>
                                 <th>{{ trans('imonitor::variables.title.variables') }}</th>
-                                <th>{{ trans('imonitor::register.table.value') }}</th>
+                                <th>{{ trans('imonitor::records.table.value') }}</th>
+                                <th>{{ trans('imonitor::alerts.table.status') }}</th>
                                 <th>{{ trans('core::core.table.created at') }}</th>
                             </tr>
                             </tfoot>
@@ -82,7 +84,7 @@
 @section('shortcuts')
     <dl class="dl-horizontal">
         <dt><code>c</code></dt>
-        <dd>{{ trans('imonitor::records.title.create record') }}</dd>
+        <dd>{{ trans('imonitor::alerts.title.create alert') }}</dd>
     </dl>
 @stop
 
@@ -91,7 +93,7 @@
         $(document).ready(function () {
             $(document).keypressAction({
                 actions: [
-                    {key: 'c', route: "<?= route('admin.imonitor.record.create') ?>"}
+                    {key: 'c', route: "<?= route('admin.imonitor.alert.create') ?>"}
                 ]
             });
         });

@@ -20,7 +20,14 @@ return [
         'destroy' => 'imonitor::records.destroy resource',
     ],
 
+    'imonitor.alerts' => [
+        'index' => 'imonitor::alerts.list resource',
+        'create' => 'imonitor::alerts.create resource',
+        'edit' => 'imonitor::alerts.edit resource',
+        'destroy' => 'imonitor::alerts.destroy resource',
+    ],
 // append
+
 
 
 

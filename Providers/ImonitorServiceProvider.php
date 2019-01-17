@@ -32,7 +32,9 @@ class ImonitorServiceProvider extends ServiceProvider
             $event->load('products', array_dot(trans('imonitor::products')));
             $event->load('variables', array_dot(trans('imonitor::variables')));
             $event->load('records', array_dot(trans('imonitor::records')));
+            $event->load('alerts', array_dot(trans('imonitor::alerts')));
             // append translations
+
 
 
 
@@ -95,7 +97,20 @@ class ImonitorServiceProvider extends ServiceProvider
                 return new \Modules\Imonitor\Repositories\Cache\CacheRecordDecorator($repository);
             }
         );
+        $this->app->bind(
+            'Modules\Imonitor\Repositories\AlertRepository',
+            function () {
+                $repository = new \Modules\Imonitor\Repositories\Eloquent\EloquentAlertRepository(new \Modules\Imonitor\Entities\Alert());
+
+                if (! config('app.cache')) {
+                    return $repository;
+                }
+
+                return new \Modules\Imonitor\Repositories\Cache\CacheAlertDecorator($repository);
+            }
+        );
 // add bindings
+
 
 
 

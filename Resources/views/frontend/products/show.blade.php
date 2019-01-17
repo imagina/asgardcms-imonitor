@@ -5,22 +5,43 @@
     {{ $product->title }} | @parent
 @stop
 @section('content')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
-    <div id="content_show_imonitor" class="my-5">
+<style>
+    #toast-container>div
+    {
+        padding: 10px 10px 10px 45px;
+        background-position: 10px center;
+    }
+    #toast-container a
+    {
+        font-weight: bold;
+        text-decoration: underline;
+    }
+    .toast-message
+    {
+        font-family: sans-serif;
+        line-height: 1;
+    }
+    .toast-message span.value
+    {
+        font-weight: bold;
+    }
+    #collapseHighcharts{
+        background-color: #dddddd;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    #collapseHighcharts .char{
+    {
+        margin-bottom: 10px;
+    }
+</style>
+    <div id="content_show_imonitor" class="contaniner-imonitor">
         <div class="container">
             <!-- breadcrumb -->
-            <div class="row">
-                <nav aria-label="breadcrumb" class="col-12 text-right">
-                    <ol class="breadcrumb rounded-0 pull-right" style="background-color: transparent;">
-                        <li class="breadcrumb-item"><a href="{{ url('/') }}"><span class="text-dark">Inicio</span></a>
-                        </li>
-                        <li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span
-                                        class="text-dark">Monitor</span></a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $product->title }} </li>
-                    </ol>
-                </nav>
-            </div>
+                @component('imonitor::frontend.widgets.breadcrumb')
+                    <li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span class="text-dark">Monitor</span></a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $product->title }} </li>
+                @endcomponent
             <!-- END-breadcrumb -->
 
             <!-- TITLE -->
@@ -32,7 +53,7 @@
             </div>
             <!-- END-TITLE -->
 
-            <!-- PRODUCT -->
+            <!-- GRAFICA_PRODUCT -->
             <div class="row">
                 <div class="col-12">
                     <div class="progress" v-if="loading" style="height: 3px;">
@@ -41,24 +62,20 @@
                     </div>
                     <div id="highcharts" v-bind:class="{ 'load-vue': loading }"></div>
                     <hr>
-                    <button class="btn mb-2" type="button" data-toggle="collapse" data-target="#collapseHighcharts"
-                            aria-expanded="false" aria-controls="collapseHighcharts">
-                        VER GRÁFICOS INDIVIDUALES
-                    </button>
                 </div>
+                <button class="btn mb-2" type="button" data-toggle="collapse" data-target="#collapseHighcharts"
+                        aria-expanded="false" aria-controls="collapseHighcharts">
+                    VER GRÁFICOS INDIVIDUALES
+                </button>
+                <a href="{{ route('imonitor.product.unique',$product->id) }}" class="btn mb-2" type="button" data-toggle="collapse" data-target="#collapseHighcharts" aria-expanded="false" aria-controls="collapseHighcharts">
+                    VER EN VENTANA NUEVA
+                </a>
             </div>
-            <!-- END-PRODUCTS -->
-            <div class="row collapse" style="background: #80808026;border-radius: 10px;" id="collapseHighcharts">
-                @foreach ($product->variables as $variable)
-                    <div class="col-12">
-                        <div id="highcharts_{{$variable->id}}" class="border-bottom border-primary my-2"></div>
-                        <p>
-                            <small>valor máximo: {{$variable->pivot->max_value}} | valor
-                                minimo: {{$variable->pivot->min_value}}</small>
-                        </p>
-                    </div>
-                @endforeach
-            </div>
+            <!-- END-GRAFICA_PRODUCT -->
+
+            <!-- GRAFICA_POR_SERIES_DEL_PRODUCT -->
+            <div class="row collapse" id="collapseHighcharts"></div>
+            <!-- END-GRAFICA_POR_SERIES_DEL_PRODUCT -->
 
             <div class="row">
                 <div class="col-md-8 col-sm-12">
@@ -80,14 +97,14 @@
                             <div class="content mt-5">
                                 <div id="map_canvas" style="width:100%; height:314px"></div>
                             </div>
-
                         </div>
                     @endif
                 </div>
             </div>
-
         </div>
     </div>
+    @include('imonitor::frontend.widgets.variables')
+    {{-- <button onclick="prueba_notificacion()"> notificacion</button> --}}
 @stop
 
 @section('scripts')
@@ -95,33 +112,87 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/series-label.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
     <script>
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": false,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
+        var notificacion = {{ Auth::user()->hasAccess('imonitor.alerts.index') }};
+
+            /*
+            The purpose of this demo is to demonstrate how multiple charts on the same page
+            can be linked through DOM and Highcharts events and API methods. It takes a
+            standard Highcharts config with a small variation for each data set, and a
+            mouse/touch event handler to bind the charts together.
+            */
+
+            /**
+             * In order to synchronize tooltips and crosshairs, override the
+             * built-in events with handlers defined on the parent element.
+             */
+        $(document).ready(function () {
+            ['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
+                document.getElementById('collapseHighcharts').addEventListener(
+                    eventType,
+                    function (e) {
+                        var chart,point,i,event;
+
+                        for (i = 0; i < Highcharts.charts.length; i = i + 1) {
+                            chart = Highcharts.charts[i];
+                            // Find coordinates within the chart
+                            event = chart.pointer.normalize(e);
+                            // Get the hovered point
+                            point = chart.series[0].searchPoint(event, true);
+
+                            if (point) {
+                                point.highlight(e);
+                            }
+                        }
+                    }
+                );
+            });
+
+            /**
+             * Override the reset function, we don't need to hide the tooltips and
+             * crosshairs.
+             */
+            Highcharts.Pointer.prototype.reset = function () {
+                return undefined;
+            };
+
+            /**
+             * Highlight a point by showing tooltip, setting hover state and draw crosshair
+             */
+            Highcharts.Point.prototype.highlight = function (event) {
+                event = this.series.chart.pointer.normalize(event);
+                this.onMouseOver(); // Show the hover marker
+                this.series.chart.tooltip.refresh(this); // Show the tooltip
+                this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
+            };
+        });
+        /**
+         * Synchronize zooming through the setExtremes event handler.
+         */
+        function syncExtremes(e) {
+            var thisChart = this.chart;
+            if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
+                Highcharts.each(Highcharts.charts, function (chart) {
+                    if (chart !== thisChart) {
+                        if (chart.xAxis[0].setExtremes) { // It is null while updating
+                            chart.xAxis[0].setExtremes(
+                                e.min,
+                                e.max,
+                                undefined,
+                                false,
+                                { trigger: 'syncExtremes' }
+                            );
+                        }
+                    }
+                });
+            }
         }
-        var optionAlert = {
-                marker: {
-                    symbol: 'circle',
-                    fillColor: "rgb(250, 14, 14)",
-                    lineColor: "rgb(0, 0, 0)",
-                    radius: 8
-                }
-            },
-            zoom = 16;
+
+        toastr.options = toastr_options;
+        var baseUrl = "{{ url('monitor/'.$product->id.'/historic') }}";
+
         const historial = new Vue({
             el: "#content_show_imonitor",
             data: {
@@ -130,13 +201,13 @@
                 product_id: {{ $product->id }},
                 dataChart: {
                     data: [],
-                    chart: null,
                     title: '{{$product->title}}'
                 },
                 seriesChart: []
             },
             mounted() {
                 this.getDateChart();
+                $('.load-span').addClass('load-hide');
             },
             methods: {
                 getDateChart: function () {
@@ -148,344 +219,179 @@
                 },
                 renderChart: function () {
                     this.series.forEach((element, index) => {
-                        this.dataChart.data.push({'name': element.title, 'data': [], 'id': element.id});
+
+                        this.dataChart.data.push({'name': element.title, 'data': [], 'id': element.id, 'chart': null});
+
                         this.seriesChart.push({'name': element.title, 'data': [], 'id': element.id, 'chart': null});
-                        this.seriesChart[index].chart = Highcharts.chart('highcharts_' + element.id, {
-                            chart: {
-                                type: 'spline',
-                                animation: Highcharts.svg, // don't animate in old IE
-                            },
-                            title: {text: element.title},
-                            xAxis: {
-                                type: 'datetime',
-                                dateTimeLabelFormats:
-                                    {
-                                        second: '%H:%M:%S',
-                                        minute: '%H:%M',
-                                        hour: '%H:%M',
-                                        month: '%b \'%y',
-                                        day: '%e. %b',
-                                        year: '%Y',
-                                    },
-                                labels: {
-                                    format: '{value: %e/%m/%y %H:%M:%S}'
-                                },
-                            },
-                            yAxis: {title: {text: 'Valores'}},
-                            series: [{
-                                name: element.title,
-                                id: element.id,
-                                data: []
-                            }]
-                        });
+
+                        var chartContainer = document.createElement('div');
+
+                        chartContainer.className = 'chart col-12';
+
+                        document.getElementById('collapseHighcharts').appendChild(chartContainer);
+
+                        subtitle = "max:"+this.series[index].pivot.max_value + "| min:"+this.series[index].pivot.min_value;
+
+                        // LOS LIMITES DEL EJEX Y
+                        var plotLines = [{
+                            value: this.series[index].pivot.min_value,
+                            color: 'red',
+                            dashStyle: 'shortdash',
+                            width: 1,
+                            zIndex: 3,
+                            label: { text: 'Valor mínimo: '+this.series[index].pivot.min_value }
+                        }, {
+                            value: this.series[index].pivot.max_value,
+                            color: 'red',
+                            dashStyle: 'shortdash',
+                            width: 1,
+                            zIndex: 3,
+                            label: { text: 'Valor máximo:'+this.series[index].pivot.min_value }
+                        }]
+
+                        // GENERAR LA GRAFICA DE LA SERIE
+                        this.seriesChart[index].chart = this.Highcharts(element.title,
+                                                                        subtitle,
+                                                                        chartContainer,
+                                                                        [{ name: element.title, id: element.id, data: [] }],
+                                                                        plotLines
+                                                                    );
                     });
 
-                    this.dataChart.chart = Highcharts.chart('highcharts', {
-                        chart: {
-                            type: 'spline',
-                            animation: Highcharts.svg, // don't animate in old IE
-                        },
-                        title: {text: this.dataChart.title},
-                        xAxis: {
-                            type: 'datetime',
-                            dateTimeLabelFormats:
-                                {
-                                    second: '%H:%M:%S',
-                                    minute: '%H:%M',
-                                    hour: '%H:%M',
-                                    month: '%b \'%y',
-                                    day: '%e. %b',
-                                    year: '%Y',
-                                },
-                            labels: {
-                                format: '{value: %e/%m/%y %H:%M:%S}'
-                            },
-                        },
-                        yAxis: {title: {text: 'Valores'}},
-                        series: this.dataChart.data,
-                    });
+                    this.dataChart.chart = this.Highcharts(this.dataChart.title, null, 'highcharts',this.dataChart.data,null);
+
+                    this.loading = false;
                 },
                 pushRecord: function (record) {
-                    var length = this.dataChart.chart.series[0].data.length;
-                    var shift = length > 51;
-                    var created_at = +moment(record.created_at);
+                    var length = this.dataChart.chart.series[0].data.length,
+                        shift = length > 51,
+                        created_at = +moment(record.created_at);
+
                     this.dataChart.data.forEach((value, index) => {
-                        if (value.id == record.variable_id) {
+                        if (value.id == record.variable_id)
+                        {
 
-                            this.dataChart.chart.series[index].addPoint([+moment(), parseFloat(record.value)], true, shift);
+                            time = this.formatDatetime(record.created_at);
 
-                            this.seriesChart[index].chart.series[0].addPoint([+moment(), parseFloat(record.value)], true, shift);
+                            var newPoint = [time, parseFloat(record.value)];
+
+                            this.dataChart.chart.series[index].addPoint(newPoint, true, shift);
+
+                            this.seriesChart[index].chart.series[0].addPoint(newPoint, true, shift);
 
                             if (parseFloat(record.value) > this.series[index].pivot.max_value || parseFloat(record.value) < this.series[index].pivot.min_value) {
-                                var point = this.dataChart.chart.series[index].points[length - 1];
-                                var pointSerie = this.seriesChart[index].chart.series[0].points[length - 1]
-                                if (parseFloat(record.value) > this.series[index].pivot.max_value) {
-                                    toastr.warning('Linea ' + this.series[index].title + ' arrojo un valor maximo de ' + parseFloat(record.value));
+
+                                length = this.dataChart.chart.series[index].points.length-1;
+
+                                var point = this.dataChart.chart.series[index].points[length];
+
+                                length = this.seriesChart[index].chart.series[0].points.length-1;
+
+                                var pointSerie = this.seriesChart[index].chart.series[0].points[length];
+
+                                var type = parseFloat(record.value) > this.series[index].pivot.max_value ? 'máximo' : 'mínimo';
+                                if(notificacion)
+                                {
+                                    toastr.error('Linea <span class="value">' + this.series[index].title + '</span> arrojo un valor '+type+' de <span class="value">' + parseFloat(record.value)+'</span><a href="'+baseUrl+'?alert='+record.created_at+'" class="d-block">Ir al historial</a>');
                                 }
-                                if (parseFloat(record.value) < this.series[index].pivot.min_value) {
-                                    toastr.error('Linea ' + this.series[index].title + ' arrojo un valor minimo de ' + parseFloat(record.value));
-                                }
+
                                 point.update(optionAlert);
                                 pointSerie.update(optionAlert);
                             }
                         }
                     });
+                },
+                Highcharts: function (title,subtitle,chartContainer,series,plotLines)
+                {
+                    return Highcharts.chart(chartContainer, {
+                        chart: {
+                            type: 'spline',
+                            animation: Highcharts.svg, // don't animate in old IE
+                        },
+                        title: {text: title},
+                        subtitle: {
+                            text: subtitle
+                        },
+                        xAxis: {
+                            crosshair: true,
+                            events: {
+                                setExtremes: syncExtremes
+                            },
+                            tickAmount: 24,
+                            type: 'datetime',
+                            dateTimeLabelFormats:
+                            {
+                                second: '%H:%M:%S',
+                                minute: '%H:%M',
+                                hour: '%H:%M',
+                                month: '%b \'%y',
+                                day: '%e. %b',
+                                year: '%Y',
+                            },
+                            labels: {
+                                formatter: function()
+                                {
+                                    return moment(new Date(this.value)).format('DD/MM/YY HH:mm:ss');
+                                },
+                            },
+                            shared: true
+                        },
+                        tooltip: {
+                            formatter: function () {
+                                return '<b>'+this.series.name+'</b><br>valor: '+this.y+'<br><small>' + moment(new Date(this.x)).format('DD/MM/YY HH:mm:ss')+'</small>';
+                            },
+                        },
+                        yAxis: {
+                            title: {text: 'Valores'},
+                            plotLines: plotLines,
+                        },
+                        series: series
+                    });
+                },
+                formatDatetime: function (datetime)
+                {
+                    return Date.parse(new Date(datetime));
                 }
             }
         });
+
+        function prueba_notificacion() {
+            if (Notification) {
+                if (Notification.permission !== "granted") {
+                    Notification.requestPermission()
+                }
+                var title = "Xitrus"
+                var extra = {
+                    icon: "http://xitrus.es/imgs/logo_claro.png",
+                    body: "Notificación de prueba en Xitrus"
+                }
+                var noti = new Notification( title, extra)
+                noti.onclick = {
+                // Al hacer click
+                }
+                noti.onclose = {
+                // Al cerrar
+                }
+                setTimeout( function() { noti.close() }, 10000)
+            }
+        }
     </script>
 
-    @if(isset($product->address)&&!empty($product->address))
-        <script type='text/javascript'
-                src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
+    @if(isset($product->address) && !empty($product->address))
+        <script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
         <script type="text/javascript">
             var geocoder, map, marker,
-                styles = [
-                    {
-                        "featureType": "administrative",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "color": "#a7a7a7"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "administrative",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#737373"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "landscape",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#ffffff"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#dadada"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "labels",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "labels.icon",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "geometry",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#ffa000"
-                            },
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels.text",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels.text.fill",
-                        "stylers": [
-                            {
-                                "color": "#ffffff"
-                            },
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels.text.stroke",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels.icon",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.arterial",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.arterial",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.local",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "visibility": "on"
-                            },
-                            {
-                                "color": "#ffcf7f"
-                            },
-                            {
-                                "weight": 1.8
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "road.local",
-                        "elementType": "geometry.stroke",
-                        "stylers": [
-                            {
-                                "color": "#ffa000"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "transit",
-                        "elementType": "all",
-                        "stylers": [
-                            {
-                                "color": "#808080"
-                            },
-                            {
-                                "visibility": "on"
-                            }
-                        ]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "geometry.fill",
-                        "stylers": [
-                            {
-                                "color": "#d3d3d3"
-                            }
-                        ]
-                    }
-                ];
+                latitude  = {{$address->lattitude}},
+                longitude = {{$address->longitude}};
 
-            function initialize() {
-                var latitude ={{$address->lattitude}};
-                var longitude ={{$address->longitude}};
+            $(document).ready(function ()
+            {
                 var OLD = new google.maps.LatLng(latitude, longitude);
                 var options = {
                     zoom: zoom,
                     center: OLD,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,// ROADMAP | SATELLITE | HYBRID | TERRAIN
-                    styles: styles
+                    styles: mapStyles
                 };
                 map = new google.maps.Map(document.getElementById("map_canvas"), options);
                 geocoder = new google.maps.Geocoder();
@@ -494,12 +400,7 @@
                     draggable: false,
                     position: OLD
                 });
-            }
-
-            $(document).ready(function () {
-                initialize();
             });
         </script>
     @endif
-    @if
 @stop

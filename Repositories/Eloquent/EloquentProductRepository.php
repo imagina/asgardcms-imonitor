@@ -12,6 +12,18 @@ use Illuminate\Database\Eloquent\Builder;
 class EloquentProductRepository extends EloquentBaseRepository implements ProductRepository
 {
 
+    /**
+     * @inheritdoc
+     */
+    public function find($id)
+    {
+        if (method_exists($this->model, 'translations')) {
+            return $this->model->with('translations')->findOrFail($id);
+        }
+
+        return $this->model->findOrFail($id);
+    }
+
     public function wherebyFilter($page, $take, $filter, $include)
     {
         //Initialize Query
@@ -96,7 +108,7 @@ class EloquentProductRepository extends EloquentBaseRepository implements Produc
         }
 
         /*=== REQUEST ===*/
-        return $query->first();
+        return $query->firstOrFail();
     }
 
     public function create($data)

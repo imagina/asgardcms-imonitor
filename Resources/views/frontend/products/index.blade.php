@@ -5,27 +5,14 @@
     {{ trans('imonitor::products.title.products') }} | @parent
 @stop
 @section('content')
-	<style>
-		.infowindow {
-		    position: relative;
-		    padding: 15px;
-		    background: #fff;
-		    min-width: 200px;
-		    max-width: 100%;
-		}
-		.infowindow__address
-		{
-			color: #777777
-		}
-		.infowindow__btn
-		{
-			color: white;
-			border-radius: 0px;
-			text-transform: uppercase;
-		}
-	</style>
-    <div id="content_index_imonitor" class="my-5">
+    <div id="content_index_imonitor" class="contaniner-imonitor">
 		<div class="container">
+            <!-- breadcrumb -->
+                @component('imonitor::frontend.widgets.breadcrumb')
+                    <li class="breadcrumb-item active" aria-current="page">Monitor</li>
+                @endcomponent
+            <!-- END-breadcrumb -->
+
 			<!-- TITLE -->
 			<div class="row">
 				<div class="title text-dark text-left">
@@ -50,7 +37,7 @@
 						</div>
 					</div>
 					<div class="row">
-						@forelse ($products as $product)
+						@forelse ($products  as $index => $product)
 							<div class="col-12">
 								<div id="accordionProducts">
 								    <div class="row py-1 border-bottom" id="heading{{$product->id}}">
@@ -65,11 +52,14 @@
 												<sapn class="mb-0 font-weight-bold"> #{{$product->id}} </sapn>
 											</div>
 								    	</div>
-								    	<div class="col btn text-left text-truncate" onclick="centerMap({{$product->address}})">
+								    	<div class="col btn text-left text-truncate" onclick="centerMap({{$product->address}},{{$index}})">
 											{{$product->title}}
 								    	</div>
+										@if(Auth::user()->hasAccess('imonitor.alerts.index'))
+											{{count($product->alersatives)}}
+										@endif
 								    	<div class="col px-0 align-self-center" style="max-width: 195px">
-											<a class="btn btn-primary p-1 ml-1" href="{{ url('monitor/'.$product->id) }}" data-toggle="tooltip" data-placement="top" title="Tiempo Rear">
+											<a class="btn btn-primary p-1 ml-1" href="{{ url('monitor/'.$product->id) }}" data-toggle="tooltip" data-placement="top" title="Tiempo Real">
 												<i class="fa fa-area-chart text-white" aria-hidden="true"></i>
 												<span class="d-none d-md-inline-block text-white">Tiempo Real</span>
 											</a>
@@ -100,24 +90,23 @@
 			<!-- END-PAGINATION -->
 		</div>
 	</div>
+	@include('imonitor::frontend.widgets.variables')
 @stop
 @section('scripts')
     @parent
     <script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
     <script>
-    	var zoom = 16;
-		$(function () {
-			$('[data-toggle="tooltip"]').tooltip()
-		})
 		var products = {!! json_encode($products) !!},
-			id_product = {{ $product->id }},
-        	init = false, map,
-        	iconMarker = "http://wakefulnessmagicpill.com/wp-content/uploads/2018/11/Map-Marker-Xxl-Great-Map-Marker.jpg";
-
-        centerMap = function(location) {
+			id_product = {{ $product->id }}, markers = [],
+        	init = false, map, activeInfoWindow;
+        function centerMap(location,index)
+        {
      		var center = new google.maps.LatLng(parseFloat(location.lattitude), parseFloat(location.longitude));
      		map.panTo(center);
      		map.setZoom(zoom);
+     		console.log(markers);
+     		console.log(index);
+     		google.maps.event.trigger(markers[index],'click');
         }
 
         function initMap(locations, id_product)
@@ -129,242 +118,7 @@
 	        			zoom: zoom,
 	        			center: { lat: parseFloat(location.lattitude), lng: parseFloat(location.longitude) },
                 		mapTypeId: google.maps.MapTypeId.ROADMAP,// ROADMAP | SATELLITE | HYBRID | TERRAIN
-				        styles: [
-						    {
-						        "featureType": "administrative",
-						        "elementType": "geometry",
-						        "stylers": [
-						            {
-						                "color": "#a7a7a7"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "administrative",
-						        "elementType": "labels.text.fill",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#737373"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "landscape",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#ffffff"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "poi",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#dadada"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "poi",
-						        "elementType": "labels",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "poi",
-						        "elementType": "labels.icon",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "geometry",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "geometry.stroke",
-						        "stylers": [
-						            {
-						                "color": "#ffa000"
-						            },
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "labels",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "labels.text",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "labels.text.fill",
-						        "stylers": [
-						            {
-						                "color": "#ffffff"
-						            },
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "labels.text.stroke",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road",
-						        "elementType": "labels.icon",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road.highway",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road.highway",
-						        "elementType": "geometry.stroke",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road.arterial",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road.arterial",
-						        "elementType": "geometry.stroke",
-						        "stylers": [
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road.local",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "visibility": "on"
-						            },
-						            {
-						                "color": "#ffcf7f"
-						            },
-						            {
-						                "weight": 1.8
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "road.local",
-						        "elementType": "geometry.stroke",
-						        "stylers": [
-						            {
-						                "color": "#ffa000"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "transit",
-						        "elementType": "all",
-						        "stylers": [
-						            {
-						                "color": "#808080"
-						            },
-						            {
-						                "visibility": "on"
-						            }
-						        ]
-						    },
-						    {
-						        "featureType": "water",
-						        "elementType": "geometry.fill",
-						        "stylers": [
-						            {
-						                "color": "#d3d3d3"
-						            }
-						        ]
-						    }
-						]
+				        styles: mapStyles
 	        		});
 	        		init = true;
 				}
@@ -382,7 +136,6 @@
 				    position: { lat: parseFloat(location.lattitude), lng: parseFloat(location.longitude) },
 				    map: map,
 				    title: location.address
-				    // icon: iconMarker
 				});
 
 				marker.addListener('click', function() {
@@ -390,8 +143,14 @@
 				    map.setCenter(marker.getPosition());
 				});
 
+				markers.push(marker);
+
 		        google.maps.event.addListener(marker, 'click', function() {
+		        	if (activeInfoWindow) {
+		        		activeInfoWindow.close();
+		        	}
 		            infowindow.open(map, marker);
+		            activeInfoWindow = infowindow;
 		        });
 			});
         }
@@ -399,7 +158,7 @@
         $(function()
         {
         	initMap(products.data,id_product);
+			$('[data-toggle="tooltip"]').tooltip();
         });
-
     </script>
 @stop

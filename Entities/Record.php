@@ -21,6 +21,11 @@ class Record extends Model
         return $this->belongsTo(Variable::class);
     }
 
+    public function alerts()
+    {
+        return $this->hasMany(Alert::class);
+    }
+
     public function client()
     {
         $driver = config('asgard.user.config.driver');

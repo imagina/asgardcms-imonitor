@@ -74,6 +74,8 @@
                                                    class="btn btn-default btn-flat"><i class="fa fa-pencil"></i></a>
                                                 <a href="{{ route('admin.imonitor.record.index', [$product->id]) }}"
                                                    class="btn btn-success btn-flat"><i class="fa fa-bar-chart"></i></a>
+                                                <a href="{{ route('admin.imonitor.alert.index', [$product->id]) }}"
+                                                   class="btn btn-warning btn-flat"><i class="fa fa-exclamation-triangle"></i></a>
                                                 <button class="btn btn-danger btn-flat" data-toggle="modal"
                                                         data-target="#modal-delete-confirmation"
                                                         data-action-target="{{ route('admin.imonitor.product.destroy', [$product->id]) }}">

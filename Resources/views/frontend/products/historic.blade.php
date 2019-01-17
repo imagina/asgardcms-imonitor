@@ -5,105 +5,13 @@
     {{ $product->title }} | @parent
 @stop
 @section('content')
-	<style>
-		.page-item a {
-			background-color: #FA7F0E;
-		}
-		.page-item:not(.disabled) a:hover {
-			background-color: #ef7b11 !important
-		}
-		.page-item.disabled a {
-		    pointer-events: none;
-		    background-color: #f3a761 !important
-		}
-		.load-span{
-			position: relative;
-		}
-		.load-span::after,
-		.load-span::before {
-			content: '';
-			position: absolute;
-			z-index: 1000;
-			width: 100%;
-			height: 100%;
-			left: 0;
-			top: 0;
-			background-color: #8a8a8a3d;
-		}
-		.load-span::after{
-			background-color: white;
-			z-index: 999;
-		}
-		.load-span.hide::after,
-		.load-span.hide::before {
-			content: none;
-		}
-		.load-vue{ position: relative; }
-		.load-vue:before
-		{
-			position: absolute;
-			content: "";
-			z-index: 1000;
-			width: 100%;
-			height: 100%;
-			background-color: white;
-			opacity: .8
-		}
-		#content_index_imonitor .nav-link:not(.active)
-		{
-			background: rgba(145, 145, 145, 0.5);
-		}
-		.vdpComponent.vdpWithInput
-		{
-		    margin-bottom: 10px;
-		}
-		.vdpComponent.vdpWithInput>button {
-			display: none
-		}
-		.vdpComponent.vdpWithInput>input {
-			font-size: 1rem;
-		    padding-right: 4px;
-		    max-width: 100px;
-		    margin-right: 4px;
-		    margin-left: 4px;
-		    padding-left: 4px;
-		    text-align: center;
-		    border-radius: 4px;
-		}
-		#inputDatatimes{
-    		display: inline-block;
-    		width: auto;
-    		min-width: 260px;
-    		max-width: 100%;
-		}
-		.daterangepicker td.active, .daterangepicker td.active:hover
-		{
-			background-color: #fa7f0e !important;
-		}
-		.range_inputs .btn-success
-		{
-			background-color: #fa7f0e !important;
-			border-color: #da6f0c !important;
-		}
-		.btn-success.disabled, .btn-success:disabled
-		{
-			background-color: #fa7f0e !important;
-			border-color: #da6f0c !important;
-			opacity: .5
-		}
-	</style>
-    <div id="content_historic_imonitor" class="my-5">
+    <div id="content_historic_imonitor" class="contaniner-imonitor">
 		<div class="container">
 			<!-- breadcrumb -->
-			<div class="row">
-				<nav aria-label="breadcrumb" class="col-12 text-right">
-				  	<ol class="breadcrumb rounded-0 pull-right" style="background-color: transparent;">
-				    	<li class="breadcrumb-item"><a href="{{ url('/') }}"><span class="text-dark">Inicio</span></a></li>
-				    	<li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span class="text-dark">Monitor</span></a></li>
-				    	<li class="breadcrumb-item active" aria-current="page">{{ $product->title }} | Historia </li>
-					</ol>
-				</nav>
-			</div>
+				@component('imonitor::frontend.widgets.breadcrumb')
+	    			<li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span class="text-dark">Monitor</span></a></li>
+	    			<li class="breadcrumb-item active" aria-current="page">{{ $product->title }} | Historia </li>
+				@endcomponent
 			<!-- END-breadcrumb -->
 
 			<!-- TITLE -->
@@ -139,7 +47,7 @@
 			</div>
 			<!-- END-TITLE -->
 
-			<!-- PRODUCT -->
+			<!-- GRAFICA_PRODUCT -->
 			<div class="row">
 				<div class="col-12">
 					<div class="progress" v-if="loading" style="height: 3px;">
@@ -148,79 +56,23 @@
 					<div id="highcharts" v-bind:class="{ 'load-vue': loading }"></div>
 				</div>
 			</div>
+			<!-- END-GRAFICA_PRODUCT -->
 
 			<div class="row">
 				<div class="col-12 my-2">
 	            	<div class="d-block text-center">
-	            		<input type="text" name="datetimes" id="inputDatatimes" class="form-control datetimes load-span" disabled="true"/>
-	            	    <button class="btn btn-primary load-span" v-on:click="getDateChart(true)" style="margin-top: -6px;">GRAFICAR</button>
+	            		<input type="text" name="datetimes" id="inputDatatimes" class="form-control datetimes load-span" disabled="true" style="opacity: 0"/>
+	            	    <button class="btn btn-primary load-span" v-on:click="getDateChart(true)" style="margin-top: -6px;opacity: 0">GRAFICAR</button>
 	            	</div>
 				</div>
-				<div class="col-12 mb-2 load-span">
-					<!-- PAGINADOR -->
-					<div class="col-12 text-right my-2 text-center" v-if="page.total > 1">
-					    <nav aria-label="Page navigation example">
-					        <ul class="pagination justify-content-center mb-0">
-					            <!-- btn go to the first page -->
-					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage == 1 || loading }">
-					                <a class="page-link" v-on:click="change_page(1)" title="last page">
-					                	<i class="fa fa-angle-double-left" aria-hidden="true"></i>
-					                    <span class="sr-only">Last</span>
-					                </a>
-					            </li>
-					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage < 2 || loading}">
-					                <a class="page-link" v-on:click="change_page(page.currentPage - 1)" title="previo page">
-					                    <i class="fa fa-angle-left"></i>
-					                    <span class="sr-only">previous</span>
-					                </a>
-					            </li>
-					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage == page.lastPage || loading }">
-					                <a class="page-link" v-on:click="change_page(page.currentPage + 1 )" title="next page">
-					                    <i class="fa fa-angle-right"></i>
-					                    <span class="sr-only">next</span>
-					                </a>
-					            </li>
-					            <li class="page-item" v-bind:class="{ 'disabled' : page.currentPage == page.lastPage || loading }">
-					                <a class="page-link" v-on:click="change_page(page.lastPage)" title="last page">
-					                	<i class="fa fa-angle-double-right" aria-hidden="true"></i>
-					                    <span class="sr-only">Last</span>
-					                </a>
-					            </li>
-							</ul>
-					    </nav>
-					    <div>@{{page.currentPage}} de @{{page.lastPage}} Paginas | <span>Registros: @{{page.total}}</span></div>
-					</div>
-				</div>
-				<div class="col-12 mt-2">
-					<div class="table-responsive">
-						<table class="table load-span">
-							<thead>
-								<tr>
-									<th v-for="serie in series">
-										@{{serie.title}}
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr v-if="dataChart.noData">
-									<td v-for="data in dataChart.data">
-										<div v-for="val in data.data" class="py-2 border-bottom">
-											@{{val[0]}} | <span class="badge badge-secondary">@{{val[1]}}</span>
-										</div>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="alert alert-warning text-center" v-if="!dataChart.noData">
-							<strong>NO</strong> HAY DATA PARA ESTE RANGO DE FECHAS...
-						</div>
-					</div>
-				</div>
 			</div>
-			<!-- END-PRODUCTS -->
+
+			<!-- END-TABLE_PRODUCT -->
+				@include('imonitor::frontend.widgets.table')
+			<!-- END-TABLE_PRODUCT -->
 		</div>
 	</div>
-
+	@include('imonitor::frontend.widgets.variables')
 @stop
 
 @section('scripts')
@@ -233,8 +85,18 @@
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
     <script>
-	    startDate = "{{ date('d/m/Y 00:01:00')}}";
-	    endDate = "{{ date('d/m/Y 23:59:00')}}";
+	    var startDate = "{{ date('Y/m/d 00:01:00')}}",
+	    	endDate = "{{ date('Y/m/d 23:59:00')}}",
+	    	alert = "{{ isset($_GET['alert'])? $_GET['alert'] : null }}";
+	    	// VERIFICA SI EXISTE UNA ALERTA
+	    	if(alert  != "")
+	    	{
+ 				startDate = new Date( (new Date(alert)).getTime() - 900000 );
+ 				startDate = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
+ 				endDate   = new Date( (new Date(alert)).getTime() + 900000 );
+ 				endDate   = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
+	    	}
+
         const historial = new Vue({
             el: "#content_historic_imonitor",
             components: {DatePick},
@@ -257,13 +119,19 @@
         			chart: null,
                 	fromDate: startDate,
                 	toDate:  endDate,
+                	markers: []
         		},
             },
             mounted() {
         		this.getDateChart();
                 this.daterangepicker();
-                $('.load-span').addClass('hide');
+                $('.load-span').addClass('load-hide');
             },
+			filters: {
+				created_at: function (value) {
+					return moment(new Date(value)).format('DD/MM/YY HH:mm:ss');
+				}
+			},
         	methods: {
         		getDateChart: function (reset = false)
         		{
@@ -275,6 +143,7 @@
 					this.series.forEach(element => {
 	        			this.dataChart.data.push({'name': element.title,'data': [], 'id': element.id});
 					});
+                    this.renderChart();
                     axios.get('{{ url('/api/imonitor/records') }}', {
                         params:{
                             filter:{
@@ -283,58 +152,80 @@
                                 	this.dataChart.fromDate,
                                 	this.dataChart.toDate
                                 ],
-                                cliente: this.client_id,
+                                // cliente: this.client_id,
                             },
                             take: this.take,
                             page: this.page.currentPage
                         }
                     })
                 	.then(response => {
-                		this.dataChart.noData = response.data.data.length == 0? false : true;
+
+                		this.dataChart.noData = response.data.data.length == 0 ? false : true;
+
 						response.data.data.forEach(element => {
+
 							this.dataChart.data.forEach((value, index) => {
-								if(value.id == element.variable_id){
-                        			// time = moment(element.created_at);
-                        			// console.log(element.created_at);
-                        			// time = new Date(time).getTime();
-                        			time = element.created_at;
-									this.dataChart.data[index].data.push([
-										time,
-										parseFloat(element.value)
-									]);
+
+								if(value.id == element.variable_id)
+								{
+                        			time = this.formatDatetime(element.created_at);
+
+									value = parseFloat(element.value);
+
+									this.dataChart.chart.series[index].addPoint([time, value], true, false);
+
+		                            if(this.series[index].pivot.min_value > value || value > this.series[index].pivot.max_value) {
+		                               var length = this.dataChart.chart.series[index].points.length-1;
+		                               console.log(length);
+		                               this.dataChart.chart.series[index].points[length].update(optionAlert);
+		                               console.log(this.dataChart.chart.series[index].points[length]);
+		                            }
 								}
+
 							});
+
 						});
-							this.page = response.data.meta.page;
-                    }).finally(() => { this.loading = false; this.renderChart() })
+
+                    	this.page = response.data.meta.page;
+
+                    }).finally(() => {
+                    	this.loading = false;
+                    })
         		},
         		renderChart: function () {
+					Highcharts.setOptions({
+					    global: {
+					      useUTC: false
+					    }
+					});
 					this.dataChart.chart = Highcharts.chart('highcharts', {
-            			chart: {
-            			    zoomType: 'x'
-            			},
+            			chart: { zoomType: 'x' },
 					    title: { text: this.dataChart.title },
-						subtitle: { text: '' },
 					    xAxis: {
-					        type: 'datetime',
-					        dateTimeLabelFormats:
-					        {
-					        	second: '%H:%M:%S',
-					            minute: '%H:%M',
-					            hour:'%H:%M',
-					            month: '%b \'%y',
-					          	day: '%e. %b',
-					            year: '%Y',
-					        },
-						    labels: {
-						      format: '{value:  %A, %b %e, %H:%M:%S}'
-						    },
-					        title: { text: 'Date' }
+					    	tickAmount: 24,
+                        	type: 'datetime',
+                        	dateTimeLabelFormats:
+                            {
+                                second: '%H:%M:%S',
+                                minute: '%H:%M',
+                                hour: '%H:%M',
+                                month: '%b \'%y',
+                                day: '%e. %b',
+                                year: '%Y',
+                            },
+							labels: {
+								formatter: function()
+								{
+								  	return moment(new Date(this.value)).format('DD/MM/YY HH:mm:ss');
+								},
+							},
+							shared: true
 					    },
-                        tooltip: {
-                            headerFormat: '<b>{series.name}</b><br>',
-                            pointFormat: '{point.x:%B/%e/%Y %H:%M:%S }: valor:{point.y}'
-                      	},
+					    tooltip: {
+    						formatter: function () {
+                                return '<b>'+this.series.name+'</b><br>valor: '+this.y+'<br><small>' + moment(new Date(this.x)).format('DD/MM/YY HH:mm:ss')+'</small>';
+    						},
+					    },
 					    yAxis: { title: { text: 'Valores' } },
 					    series: this.dataChart.data
 					});
@@ -346,14 +237,14 @@
 				daterangepicker: function () {
 				    $('#inputDatatimes').daterangepicker({
 				        timePicker: true,
-						startDate: startDate,
-						endDate: endDate,
+						startDate: "{{ date('d/m/Y 00:01:00')}}",
+						endDate: "{{ date('d/m/Y 23:59:00')}}",
 						timePicker24Hour: true,
 						maxDate: "{{ date('d/m/Y 23:59:00')}}",
 				        opens: 'center',
 				        autoclose: false,
 				        locale: {
-				        	format: 'DD/M/Y hh:mm',
+				        	format: 'DD/M/Y hh:mm:ss',
 				            separator: " - ",
 				            applyLabel: "Aplicar",
 				            cancelLabel: "Cancelar",
@@ -391,41 +282,43 @@
 						this.dataChart.toDate = end.format('YYYY/MM/DD HH:mm:ss');
 				    });
 			    	$('#inputDatatimes').attr('disabled',false);
+				},
+				formatDatetime: function (datetime)
+				{
+    				datetime = datetime.split('/');
+
+    				datetime = datetime[1]+'/'+datetime[0]+'/'+datetime[2];
+
+					return Date.parse(new Date(datetime));
 				}
 			}
         });
     </script>
-    <script type='text/javascript'
-        src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
+
     @if(isset($product->address)&&!empty($product->address))
-    <script type="text/javascript">
+    	<script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
+	    <script type="text/javascript">
+            var geocoder, map, marker,
+                latitude  = {{$address->lattitude}},
+                longitude = {{$address->longitude}};
 
-        var geocoder;
-        var map;
-        var marker;
-
-        function initialize() {
-            var latitude ={{$address->lattitude}};
-            var longitude ={{$address->longitude}};
-            var OLD = new google.maps.LatLng(latitude, longitude);
-            var options = {
-                zoom: 16,
-                center: OLD,
-                mapTypeId: google.maps.MapTypeId.ROADMAP,// ROADMAP | SATELLITE | HYBRID | TERRAIN
-            };
-            map = new google.maps.Map(document.getElementById("map_canvas"), options);
-            geocoder = new google.maps.Geocoder();
-            marker = new google.maps.Marker({
-                map: map,
-                draggable: false,
-                position: OLD
-            });
-        }
-
-        $(document).ready(function() {
-            initialize();
-
-        });
-    </script>
+	        $(document).ready(function()
+	        {
+	            var OLD = new google.maps.LatLng(latitude, longitude);
+	            var options = {
+	                zoom: zoom,
+	                center: OLD,
+	                mapTypeId: google.maps.MapTypeId.ROADMAP,// ROADMAP | SATELLITE | HYBRID | TERRAIN
+	                styles: mapStyles
+	            };
+	            map = new google.maps.Map(document.getElementById("map_canvas"), options);
+	            geocoder = new google.maps.Geocoder();
+	            marker = new google.maps.Marker({
+	                map: map,
+	                draggable: false,
+	                position: OLD
+	            });
+	        });
+	    </script>
     @endif
 @stop

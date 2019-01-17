@@ -14,6 +14,7 @@ use Log;
 use Mockery\CountValidator\Exception;
 use Modules\Ihelpers\Http\Controllers\Api\BaseApiController;
 use Modules\Imonitor\Entities\Record;
+use Modules\Imonitor\Repositories\AlertRepository;
 use Modules\Imonitor\Repositories\ProductRepository;
 use Modules\Imonitor\Repositories\RecordRepository;
 use Modules\Imonitor\Transformers\RecordTransformers;
@@ -26,12 +27,14 @@ class RecordController extends BaseApiController
 {
     private $record;
     private $product;
+    private $alert;
 
-    public function __construct(RecordRepository $record, ProductRepository $product)
+    public function __construct(RecordRepository $record, ProductRepository $product, AlertRepository $alert)
     {
         parent::__construct();
         $this->record = $record;
         $this->product = $product;
+        $this->alert=$alert;
 
     }
 
@@ -132,10 +135,16 @@ class RecordController extends BaseApiController
             }
             if (in_array($request->variable_id, $productVariables)) {
                 if ($product->productUser->id == Auth::user()->id) {
-
-
                     $request['client_id'] = $product->user->id;
+
                     $record = $this->record->create($request->all());
+
+                    $maxValue=$product->variables->where('id',$request->variable_id)->first()->pivot->max_value;
+                    $minValue=$product->variables->where('id',$request->variable_id)->first()->pivot->min_value;
+                    if($maxValue<$record->value || $minValue>$record->value){
+                       $alert=$this->alert->create(['product_id'=>$record->product_id,'record_id'=>$record->id, 'user_id'=>$product->user->id]);
+                    }
+
                     $status = 200;
                     $response = [
                         'susses' => [

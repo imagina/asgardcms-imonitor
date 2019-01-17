@@ -13,4 +13,8 @@ return [
         'description' => 'idocs::common.rol Product User',
         'view' => 'text',
     ],
+    'adminEmail' => [
+        'description' => 'idocs::common.Admin Email',
+        'view' => 'text',
+    ],
 ];
