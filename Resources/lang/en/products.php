@@ -5,6 +5,7 @@ return [
     'create resource' => 'Create products',
     'edit resource' => 'Edit products',
     'destroy resource' => 'Destroy products',
+    'unique resource'=>'Individual view Product',
     'title' => [
         'products' => 'Product',
         'create product' => 'Create a product',

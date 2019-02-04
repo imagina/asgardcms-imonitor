@@ -31,7 +31,7 @@ class SendAlert
         $view = "imonitor::frontend.emails.alert";
 
 
-        $this->mail->to($product->operator->email??'marcos21.009@gmail.com')->send(new Alert($alert,$subject,$view));
+        $this->mail->to($product->operator->email??'Info@imonotor.im')->send(new Alert($alert,$subject,$view));
 
         $email_to = $this->setting->get('imonitor::adminEmail')!==null? explode(',', $this->setting->get('imonitor::adminEmail')):env('MAIL_FROM_ADDRESS');
 

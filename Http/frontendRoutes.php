@@ -9,10 +9,6 @@ $router->group(['prefix' =>'/monitor'], function (Router $router) {
         'uses' => 'PublicController@index',
         'middleware' => 'can:imonitor.records.index'
     ]);
-    $router->get('email', [
-        'as' => 'imonitor.product.email',
-        'uses' => 'PublicController@email',
-    ]);
 
     $router->get('/alerts', [
         'as' => 'imonitor.alerts.index',
@@ -44,7 +40,7 @@ $router->group(['prefix' =>'/monitor'], function (Router $router) {
     $router->get('/{product}/unique', [
         'as' => 'imonitor.product.unique',
         'uses' => 'PublicController@unique',
-        'middleware' => 'can:imonitor.product.unique'
+        'middleware' => 'can:imonitor.products.unique'
     ]);
 
 });

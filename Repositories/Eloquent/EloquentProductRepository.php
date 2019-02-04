@@ -144,6 +144,11 @@ class EloquentProductRepository extends EloquentBaseRepository implements Produc
         $query = $this->model->with('translations')->where('user_id',$id)->orWhere('operator_id',$id)->paginate(12);
         return $query;
     }
+    public function whereOperator($id)
+    {
+        $query = $this->model->with('translations')->Where('operator_id',$id)->paginate(12);
+        return $query;
+    }
 
     /**
      * @param $id

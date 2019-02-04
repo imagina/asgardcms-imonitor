@@ -6,6 +6,7 @@ return [
         'create' => 'imonitor::products.create resource',
         'edit' => 'imonitor::products.edit resource',
         'destroy' => 'imonitor::products.destroy resource',
+        'unique'=>'imonitor::products.unique resource'
     ],
     'imonitor.variables' => [
         'index' => 'imonitor::variables.list resource',

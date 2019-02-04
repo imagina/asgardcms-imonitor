@@ -29,5 +29,11 @@ interface ProductRepository extends BaseRepository
      * @param $id
      * @return mixed
      */
+    public function whereOperator($id);
+
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function whereVariable($id);
 }

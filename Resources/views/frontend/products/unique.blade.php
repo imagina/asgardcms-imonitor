@@ -1,19 +1,14 @@
 @extends('layouts.master')
-@section('meta')
-@stop
+
 @section('title')
     {{ $product->title }} | @parent
 @stop
+
 @section('content')
+	<style> .header-page,.menu-fixed,.imsocial,footer{ display: none } </style>
+
     <div id="content_show_imonitor" class="contaniner-imonitor">
         <div class="container">
-            <!-- breadcrumb -->
-                @component('imonitor::frontend.widgets.breadcrumb')
-                    <li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span class="text-dark">Monitor</span></a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ $product->title }} </li>
-                @endcomponent
-            <!-- END-breadcrumb -->
-
             <!-- TITLE -->
                 @component('imonitor::frontend.widgets.title')
                     <div class="sub text-primary"> {{$product->title}} </div>
@@ -34,43 +29,39 @@
                             aria-expanded="false" aria-controls="collapseHighcharts">
                         VER GRÁFICOS INDIVIDUALES
                     </button>
-                    <a class="btn btn-primary ml-1" href="{{route('imonitor.product.historic',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Grafica tiempo Real">
+                    <a class="btn btn-primary ml-1" href="{{route('imonitor.product.historic',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Grafica tiempo Rear">
                         <i class="fa fa-area-chart text-white" aria-hidden="true"></i>
                         <span class="d-none d-md-inline-block text-white">Ver hitorial</span>
                     </a>
-                    @if(Auth::user()->hasAccess('imonitor.products.unique'))
-                        <button onclick="window.open('{{ route('imonitor.product.unique',$product->id) }}','newwindow'+{{$product->id}},'width=500,height=500');return false;" class="btn btn-orange-10 ml-1">
-                            <i class="fa fa-window-restore" aria-hidden="true"></i>
-                            <span class="d-none d-md-inline-block">Abrir ventana</span>
-                        </button>
+                    @if(Auth::user()->hasAccess('imonitor.alerts.index') && count($product->alersatives) > 0)
+                        <a class="btn btn-danger ml-1" href="{{route('imonitor.alerts.product',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Ver las alertas del product">
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                            <span class="d-none d-md-inline-block text-white">
+                                {{count($product->alersatives)}}
+                            </span>
+                        </a>
                     @endif
-                </div>
+	           	</div>
             </div>
             <!-- END-GRAFICA_PRODUCT -->
 
             <!-- GRAFICA_POR_SERIES_DEL_PRODUCT -->
-                <div class="row collapse" id="collapseHighcharts"></div>
+            <div class="row collapse" id="collapseHighcharts"></div>
             <!-- END-GRAFICA_POR_SERIES_DEL_PRODUCT -->
 
-
-            <!-- DESCRIPTION_PRODUCT -->
-                @include('imonitor::frontend.widgets.description')
-            <!-- DESCRIPTION_PRODUCT -->
         </div>
     </div>
     @include('imonitor::frontend.widgets.variables')
-@stop
+@endsection
 
 @section('scripts')
     @parent
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/series-label.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <script>
-        var notificacion = {{ Auth::user()->hasAccess('imonitor.alerts.index') }};
-        
         $(document).ready(function () {
             ['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
                 document.getElementById('collapseHighcharts').addEventListener(
@@ -111,9 +102,6 @@
                 this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
             };
         });
-        /**
-         * Synchronize zooming through the setExtremes event handler.
-         */
         function syncExtremes(e) {
             var thisChart = this.chart;
             if (e.trigger !== 'syncExtremes') { // Prevent feedback loop
@@ -132,9 +120,7 @@
                 });
             }
         }
-
         toastr.options = toastr_options;
-
         const historial = new Vue({
             el: "#content_show_imonitor",
             data: {
@@ -232,7 +218,6 @@
                                 var pointSerie = this.seriesChart[index].chart.series[0].points[length];
 
                                 var type = parseFloat(record.value) > this.series[index].pivot.max_value ? 'máximo' : 'mínimo';
-                                
                                 if(notificacion)
                                 {   
                                     toastr.error('Linea <span class="value">' + this.series[index].title + '</span> arrojo un valor '+type+' de <span class="value">' + parseFloat(record.value)+'</span><a href="'+route_historic+'?alert='+record.created_at+'" class="d-block">Ir al historial</a>');
@@ -297,26 +282,5 @@
                 }
             }
         });
-    
-        function prueba_notificacion() {
-            if (Notification) {
-                if (Notification.permission !== "granted") {
-                    Notification.requestPermission()
-                }
-                var title = "Xitrus"
-                var extra = {
-                    icon: "http://xitrus.es/imgs/logo_claro.png",
-                    body: "Notificación de prueba en Xitrus"
-                }
-                var noti = new Notification( title, extra)
-                noti.onclick = {
-                // Al hacer click
-                }
-                noti.onclose = {
-                // Al cerrar
-                }
-                setTimeout( function() { noti.close() }, 10000)
-            }
-        }
     </script>
 @stop

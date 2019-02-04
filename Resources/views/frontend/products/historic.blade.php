@@ -15,58 +15,51 @@
 			<!-- END-breadcrumb -->
 
 			<!-- TITLE -->
-			<div class="row">
-				<div class="col-12 title text-dark text-left mb-3">
-					<h1 class="sub text-primary"> {{$product->title}} </h1>
-	                <div class="line mt-2 bg-secundary"></div>
-                    <div class="row">
-                        <div class="col-md-8 col-sm-12">
-                            <div class="h4 mt-5">
-                                {!! $product->description !!}
-                            </div>
-                        </div>
-                        <div class="col-md-4 col-sm-12">
-                            @if(isset($product->address)&&!empty($product->address))
-                                @php
-                                    $address=json_decode($product->address)
-                                @endphp
-                                <div class="map bg-light">
-                                    <div class="content mt-5">
-                                        <div id="map_canvas" style="width:100%; height:314px"></div>
-                                    </div>
-
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                    <a class="btn btn-primary p-1 ml-1" href="{{ url('monitor/'.$product->id) }}" data-toggle="tooltip" data-placement="top" title="Tiempo Rear">
-                        <i class="fa fa-area-chart text-white" aria-hidden="true"></i>
-                        <span class="d-none d-md-inline-block text-white">Ver el tiempo real</span>
-                    </a>
-	            </div>
-			</div>
+                @component('imonitor::frontend.widgets.title')
+        			<span class="sub text-primary"> {{$product->title}} </span>
+                @endcomponent
 			<!-- END-TITLE -->
+
+			<!-- DESCRIPTION_PRODUCT -->
+				@include('imonitor::frontend.widgets.description')
+			<!-- DESCRIPTION_PRODUCT -->
+
+			<!-- BOTTON_GRAFICAR -->
+			<div class="row">
+		        <div class="col-12 border-bottom border-top py-2 load-span">
+		            <a class="btn btn-primary" href="{{route('imonitor.product.show',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Grafica tiempo Real">
+		                <i class="fa fa-area-chart text-white" aria-hidden="true"></i>
+		                <span class="d-none d-md-inline-block text-white">Ver el tiempo real</span>
+		            </a>
+                    @if(Auth::user()->hasAccess('imonitor.alerts.index') && count($product->alersatives) > 0)
+                        <a class="btn btn-danger ml-1" href="{{route('imonitor.alerts.product',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Ver las alertas del product">
+                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                            <span class="d-none d-md-inline-block text-white">
+                                Alertas
+                            </span>
+                        </a>
+                    @endif
+		        </div>
+				<div class="col-12 my-2">
+	            	<div class="d-block text-center load-span">
+	            		<input type="text" name="datetimes" id="inputDatatimes" class="form-control datetimes" disabled="true"/>
+	            		<div class="d-inline-flex">
+	            	    	<button class="btn btn-primary" v-on:click="getDateChart(true)"><span>GRAFICAR</span></button>
+	            		</div>
+	            	</div>
+				</div>
+			</div>
+			<!-- END-BOTTON_GRAFICAR -->
 
 			<!-- GRAFICA_PRODUCT -->
 			<div class="row">
 				<div class="col-12">
-					<div class="progress" v-if="loading" style="height: 3px;">
-					  	<div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-					</div>
+					@include('imonitor::frontend.widgets.progressLoading')
 					<div id="highcharts" v-bind:class="{ 'load-vue': loading }"></div>
 				</div>
 			</div>
 			<!-- END-GRAFICA_PRODUCT -->
-
-			<div class="row">
-				<div class="col-12 my-2">
-	            	<div class="d-block text-center">
-	            		<input type="text" name="datetimes" id="inputDatatimes" class="form-control datetimes load-span" disabled="true" style="opacity: 0"/>
-	            	    <button class="btn btn-primary load-span" v-on:click="getDateChart(true)" style="margin-top: -6px;opacity: 0">GRAFICAR</button>
-	            	</div>
-				</div>
-			</div>
-
+			
 			<!-- END-TABLE_PRODUCT -->
 				@include('imonitor::frontend.widgets.table')
 			<!-- END-TABLE_PRODUCT -->
@@ -84,18 +77,23 @@
 	<script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script>
 	    var startDate = "{{ date('Y/m/d 00:01:00')}}",
 	    	endDate = "{{ date('Y/m/d 23:59:00')}}",
-	    	alert = "{{ isset($_GET['alert'])? $_GET['alert'] : null }}";
-	    	// VERIFICA SI EXISTE UNA ALERTA
+	    	alert = "{{ isset($_GET['alert'])? $_GET['alert'] : null }}",
+	    	routeExport = "{{ route('imonitor.product.historic.export',$product->id) }}";
+	    	// VERIFICA SI EXISTE UNA ALERTA (SE DEBE OPTIMIZAR ESTO)
 	    	if(alert  != "")
 	    	{
  				startDate = new Date( (new Date(alert)).getTime() - 900000 );
  				startDate = moment(startDate).format('YYYY-MM-DD HH:mm:ss');
- 				endDate   = new Date( (new Date(alert)).getTime() + 900000 );
+ 				endDate   = new Date( (new Date(alert)).getTime() + 900000 ); 
  				endDate   = moment(endDate).format('YYYY-MM-DD HH:mm:ss');
 	    	}
+
+        toastr.options = toastr_options;
 
         const historial = new Vue({
             el: "#content_historic_imonitor",
@@ -115,12 +113,14 @@
         		dataChart: {
         			noData: true,
                 	data: [],
+                	dataTable: [],
                 	title: '{{$product->title}}',
         			chart: null,
                 	fromDate: startDate,
                 	toDate:  endDate,
                 	markers: []
         		},
+
             },
             mounted() {
         		this.getDateChart();
@@ -137,11 +137,12 @@
         		{
         			if(reset)
         				this.page.currentPage = 1;
-                    this.renderChart();
                     this.loading = true;
                     this.dataChart.data = [];
+	        		this.dataChart.dataTable = [];
 					this.series.forEach(element => {
 	        			this.dataChart.data.push({'name': element.title,'data': [], 'id': element.id});
+	        			this.dataChart.dataTable.push({'name': element.title,'data': [], 'id': element.id});
 					});
                     this.renderChart();
                     axios.get('{{ url('/api/imonitor/records') }}', {
@@ -174,22 +175,21 @@
 
 									this.dataChart.chart.series[index].addPoint([time, value], true, false);
 
-		                            if(this.series[index].pivot.min_value > value || value > this.series[index].pivot.max_value) {
-		                               var length = this.dataChart.chart.series[index].points.length-1;
-		                               console.log(length);
-		                               this.dataChart.chart.series[index].points[length].update(optionAlert);
-		                               console.log(this.dataChart.chart.series[index].points[length]);
+									this.dataChart.dataTable[index].data.push([time, value]);
+
+		                            if(this.series[index].pivot.min_value > value || value > this.series[index].pivot.max_value) 
+		                            {
+		                            	this.dataChart.chart.series[index].points[0].update(optionAlert);
 		                            }
 								}
 
 							});
-
 						});
 
                     	this.page = response.data.meta.page;
 
-                    }).finally(() => {
-                    	this.loading = false;
+                    }).finally(() => {  
+                    	this.loading = false; 
                     })
         		},
         		renderChart: function () {
@@ -198,6 +198,7 @@
 					      useUTC: false
 					    }
 					});
+
 					this.dataChart.chart = Highcharts.chart('highcharts', {
             			chart: { zoomType: 'x' },
 					    title: { text: this.dataChart.title },
@@ -227,7 +228,16 @@
     						},
 					    },
 					    yAxis: { title: { text: 'Valores' } },
-					    series: this.dataChart.data
+					    series: this.dataChart.data,
+					    exporting: {
+					        showTable: false,
+        					buttons: {
+        					    contextButton: {
+        					        // menuItems: ['downloadPNG', 'downloadSVG', 'separator', 'label']
+        					    }
+        					}
+					    }
+
 					});
 				},
 				change_page: function (id) {
@@ -252,27 +262,10 @@
 				            toLabel: "HASTA",
 				            customRangeLabel: "Custom",
 				            daysOfWeek: [
-				                "Dom",
-				                "Lun",
-				                "Mar",
-				                "Mie",
-				                "Jue",
-				                "Vie",
-				                "Sáb"
+				                "Dom","Lun","Mar","Mie","Jue","Vie","Sáb"
 				            ],
 				            monthNames: [
-				                "Enero",
-				                "Febrero",
-				                "Marzo",
-				                "Abril",
-				                "Mayo",
-				                "Junio",
-				                "Julio",
-				                "Agosto",
-				                "Septiembre",
-				                "Octubre",
-				                "Noviembre",
-				                "Diciembre"
+				                "Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
 				            ],
 				            firstDay: 1
 				        },
@@ -288,37 +281,27 @@
     				datetime = datetime.split('/');
 
     				datetime = datetime[1]+'/'+datetime[0]+'/'+datetime[2];
-
+					
 					return Date.parse(new Date(datetime));
+				},
+				exportExcel: function ()
+				{
+                    axios.get(routeExport, {
+                        params: {
+                            product_id: this.product_id,
+                            range: [
+                            	this.dataChart.fromDate,
+                            	this.dataChart.toDate
+                            ],
+                            // cliente: this.client_id,
+                        }
+                    })
+                	.then(response => {
+						toastr.success('Revise su correo para descargar el archivo de exportación.');
+                	});
+					toastr.info('Se le enviara a su correo el enlace de descarga.');
 				}
 			}
         });
     </script>
-
-    @if(isset($product->address)&&!empty($product->address))
-    	<script type='text/javascript' src="https://maps.googleapis.com/maps/api/js?key={{Setting::get('imonitor::apiMap')}}&extension=.js&output=embed"></script>
-	    <script type="text/javascript">
-            var geocoder, map, marker,
-                latitude  = {{$address->lattitude}},
-                longitude = {{$address->longitude}};
-
-	        $(document).ready(function()
-	        {
-	            var OLD = new google.maps.LatLng(latitude, longitude);
-	            var options = {
-	                zoom: zoom,
-	                center: OLD,
-	                mapTypeId: google.maps.MapTypeId.ROADMAP,// ROADMAP | SATELLITE | HYBRID | TERRAIN
-	                styles: mapStyles
-	            };
-	            map = new google.maps.Map(document.getElementById("map_canvas"), options);
-	            geocoder = new google.maps.Geocoder();
-	            marker = new google.maps.Marker({
-	                map: map,
-	                draggable: false,
-	                position: OLD
-	            });
-	        });
-	    </script>
-    @endif
 @stop

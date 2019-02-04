@@ -63,7 +63,7 @@ class EloquentAlertRepository extends EloquentBaseRepository implements AlertRep
 
         /*== FILTERS ==*/
         if (isset($params->filter)) {
-            $filter = $params->filter;//Short filter
+            $filter = (object)$params->filter;//Short filter
 
             //Filter by date
             if (isset($filter->date)) {
@@ -90,16 +90,14 @@ class EloquentAlertRepository extends EloquentBaseRepository implements AlertRep
                 $query->orderBy($orderByField, $orderWay);//Add order to query
             }
 
-
             if (isset($filter->status)) {
+
                 if ($filter->status == 1) {
                     $query->whereStatus(Status::COMPLETE);
                 } else {
                     $query->whereStatus(Status::ACTIVE);
                 }
             }
-
-
         }
 
         /*== FIELDS ==*/

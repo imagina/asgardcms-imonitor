@@ -12,40 +12,40 @@
                     <li class="breadcrumb-item active" aria-current="page">Monitor</li>
                 @endcomponent
             <!-- END-breadcrumb -->
-
+			
 			<!-- TITLE -->
-			<div class="row">
-				<div class="title text-dark text-left">
-	                <div class="sub text-primary"> {{ trans('imonitor::products.title.products') }} </div>
-	                <div class="line mt-2 mb-5 bg-secundary"></div>
-	            </div>
-			</div>
+                @component('imonitor::frontend.widgets.title')
+        			<span class="sub text-primary">{{ trans('imonitor::products.title.products') }}</span>
+        			<a href="{{ route('imonitor.alerts.index') }}">
+        				<span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Ver las alertas del producto" style="font-size: 1.5rem">
+        					<i class="fa fa-exclamation-circle" aria-hidden="true"></i> {{$alerts}}
+        				</span>
+        			</a>
+                @endcomponent
 			<!-- END-TITLE -->
 
 			<!-- PRODUCTS -->
 			<div class="row">
 				<div class="col-12 mb-3">
-					<div class="py-1 mb-2 border-bottom font-weight-bold">
-					</div>
+					<div class="py-1 mb-2 border-bottom font-weight-bold"></div>
 					<div id="map_product" class="border-bottom border-primary bg-light" style="width:100%; height:360px"></div>
 				</div>
 				<div class="col-12">
 					<div class="row">
 						<div class="col-12 py-1 mb-2 border-bottom font-weight-bold">
 							PRODUCTOS
-							<span title="INFORMACIÓN..."><i class="fa fa-info-circle text-light" aria-hidden="true"></i></span>
 						</div>
 					</div>
 					<div class="row">
 						@forelse ($products  as $index => $product)
 							<div class="col-12">
 								<div id="accordionProducts">
-								    <div class="row py-1 border-bottom" id="heading{{$product->id}}">
-								    	<div class="col px-0" style="max-width: 60px">
+								    <div class="row align-items-center py-1 border-bottom" id="heading{{$product->id}}">
+								    	<div class="col-auto">
 											<div class="text-center badge badge-secondary d-block">
-												<small class="d-block">
+												<span class="d-block">
 													{{$product->created_at->format('m')}}/{{$product->created_at->format('m')}}
-												</small>
+												</span>
 												<p class="mb-0 font-weight-bold"> {{$product->created_at->format('Y')}} </p>
 											</div>
 											<div class="text-center badge badge-light d-block">
@@ -53,17 +53,30 @@
 											</div>
 								    	</div>
 								    	<div class="col btn text-left text-truncate" onclick="centerMap({{$product->address}},{{$index}})">
-											{{$product->title}}
+											<h4>{{$product->title}}</h4>
 								    	</div>
-										@if(Auth::user()->hasAccess('imonitor.alerts.index'))
-											{{count($product->alersatives)}}
-										@endif
-								    	<div class="col px-0 align-self-center" style="max-width: 195px">
-											<a class="btn btn-primary p-1 ml-1" href="{{ url('monitor/'.$product->id) }}" data-toggle="tooltip" data-placement="top" title="Tiempo Real">
+								    	<div class="col-auto">
+						                    @if(Auth::user()->hasAccess('imonitor.alerts.index') && count($product->alersatives) > 0)
+						                        <a class="btn btn-danger ml-1" href="{{route('imonitor.alerts.product',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Ver las alertas del producto">
+						                            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+						                            <span class="d-none d-md-inline-block text-white">
+						                                {{count($product->alersatives)}}
+						                            </span>
+						                        </a>
+						                    @endif
+
+											@if(Auth::user()->hasAccess('imonitor.products.unique'))
+	                							<button onclick="window.open('{{ route('imonitor.product.unique',$product->id) }}','newwindow'+{{$product->id}},'width=500,height=500');return false;" class="btn btn-orange-10 ml-1">
+	                								<i class="fa fa-window-restore" aria-hidden="true"></i>
+	                							    <span class="d-none d-md-inline-block">Abrir ventana</span>
+	                							</button>
+	                						@endif
+
+											<a class="btn btn-primary ml-1" href="{{ route('imonitor.product.show',$product->id) }}" data-toggle="tooltip" data-placement="top" title="Ir a la grafica de tiempo real">
 												<i class="fa fa-area-chart text-white" aria-hidden="true"></i>
 												<span class="d-none d-md-inline-block text-white">Tiempo Real</span>
 											</a>
-											<a class="btn btn-secondary p-1 ml-1" href="{{ url('monitor/'.$product->id.'/historic') }}" data-toggle="tooltip" data-placement="top" title="Histórico">
+											<a class="btn btn-secondary ml-1" href="{{ route('imonitor.product.historic',$product->id) }}" data-toggle="tooltip" data-placement="top" title="Ir a la grafica del Histórico">
 												<i class="fa fa-history text-white" aria-hidden="true"></i>
 												<span class="d-none d-md-inline-block text-white">Histórico</span>
 											</a>
@@ -104,8 +117,6 @@
      		var center = new google.maps.LatLng(parseFloat(location.lattitude), parseFloat(location.longitude));
      		map.panTo(center);
      		map.setZoom(zoom);
-     		console.log(markers);
-     		console.log(index);
      		google.maps.event.trigger(markers[index],'click');
         }
 
@@ -157,8 +168,8 @@
 
         $(function()
         {
-        	initMap(products.data,id_product);
 			$('[data-toggle="tooltip"]').tooltip();
+        	initMap(products.data,id_product);
         });
     </script>
 @stop

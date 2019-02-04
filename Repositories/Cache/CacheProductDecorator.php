@@ -57,4 +57,15 @@ class CacheProductDecorator extends BaseCacheDecorator implements ProductReposit
             return $this->repository->whereUser($id);
         });
     }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    public function whereOperator($id)
+    {
+        return $this->remember(function () use ($id) {
+            return $this->repository->whereOperator($id);
+        });
+    }
 }

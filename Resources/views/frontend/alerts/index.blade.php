@@ -5,38 +5,6 @@
     {{ trans('imonitor::products.title.products') }} | @parent
 @stop
 @section('content')
-<style>
-	.pagination li
-	{
-    	color: #31313F;
-	    position: relative;
-	    display: block;
-	    line-height: 1.25;
-	}
-	.pagination li:not(:last-child)
-	{
-	    margin-right: 2px;
-	}
-	.pagination li *
-	{
-	    color: #fff;
-    	background-color: #FA7F0E;
-    	border-color: #FA7F0E;
-		display: block;
-		padding: 0.5rem 0.75rem;
-	}
-	.pagination li:hover *,
-	.pagination li.active *{
-		background-color: #31313f !important;
-		border-color: #31313f !important;
-	}
-	.pagination li.disabled *
-	{
-	    pointer-events: none;
-		background-color: #ff7a0094 !important;
-		border-color: #ff7a0094 !important;
-	}
-</style>
     <div id="content_index_imonitor" class="contaniner-imonitor">
 		<div class="container">
             <!-- BREADCRUMB -->
@@ -52,12 +20,9 @@
             <!-- END-BREADCRUMB -->
 
 			<!-- TITLE -->
-			<div class="row">
-				<div class="col-12 title text-dark text-left">
+                @component('imonitor::frontend.widgets.title')
 	                <div class="sub text-primary"> Alertas <small>{{ isset($product) ? "($product->title)" : ""}}</small></div>
-	                <div class="line mt-2 mb-5 bg-secundary"></div>
-	            </div>
-			</div>
+                @endcomponent
 			<!-- END-TITLE -->
 
 			<!-- ALERTS -->
@@ -69,24 +34,28 @@
 						    	<div class="col">
 									<div class="mb-0">
 										<div class="h4 badge badge-light"> #{{$alert->id}} </div>
-										<span class="h4 font-weight-bold text-primary text-uppercase">
+										<a class="h4 font-weight-bold text-primary text-uppercase" href="{{ url("monitor/".$alert->product->id."/historic?alert=$alert->created_at") }}">
 											{{$alert->record->variable->title}}
-										</span>
-										<span class="h6 font-weight-bold">
+										</a>
+										<span class="h6">
+											@if (!isset($product))
+												{{$alert->product->title}}
+											@endif
 											| valor: {{$alert->record->value}} 
 										</span>
 										<samll class="badge badge-light"> {{$alert->created_at->format('d/m/Y h:m:s')}} </samll>
 									</div>
 						    	</div>
 						    	<div class="col-auto">
-									status: 
-									<span class="label {{$alert->present()->statusLabelClass}}">
-                                        {{ $alert->present()->status}}
-                                    </span>
-                                    <form action="{{ route('imonitor.alert.update',$alert->id) }}" method="POST">
+				                    <a class="btn btn-secondary p-1 ml-1 d-inline-block" href="{{ url("monitor/".$alert->product->id."/historic?alert=$alert->created_at") }}" data-toggle="tooltip" data-placement="top" title="Histórico">
+				                        <i class="fa fa-history text-white" aria-hidden="true"></i>
+				                        <span class="d-none d-md-inline-block text-white">Ir al histórico</span>
+				                    </a>
+                                    <form action="{{ route('imonitor.alert.update',$alert->id) }}" method="POST" class="d-inline-block">
                                     	{{ csrf_field() }}
                                     	<input type="hidden" value="1">
-										<button class="btn btn-primary btn-alert_status p-1 ml-1" disabled="true" type="submit">
+										<button class="btn btn-primary btn-confirm p-1 ml-1" type="submit" data-toggle="confirmation" data-singleton="true" disabled="false">
+											<i class="fa fa-check-square-o" aria-hidden="true"></i>
 											<span class="d-none d-md-inline-block">COMPLETADO</span>
 										</button>
                                     </form>
@@ -101,30 +70,29 @@
 						</div>
 					</div>
 				@endforelse
-			
-				<div class="col-12 mt-3">
-					{{$alerts->links()}}
-				</div>
 			</div>
 			<!-- END-ALERTS -->
+
+			<!-- PAGINATION -->
+				<div class="row mt-3">
+					{{$alerts->links()}}
+				</div>
+			<!-- END-PAGINATION -->
 		</div>
 	</div>
+
 	@include('imonitor::frontend.widgets.variables')
 @stop
+
 @section('scripts')
+    @parent
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-confirmation2/dist/bootstrap-confirmation.min.js"></script>
 	<script>
-		$(function(){
-			$('.btn-alert_status').prop('disabled', false);
-			changeStatusAlert = function (id_alert)
-			{
-				if(id_alert) {
-                    axios.get('{{ url('/api/imonitor/records') }}', {
-                        params:{ }
-                    })
-                	.then(response => {
-                    }).finally(() => { })
-				}
-			}
+		$('[data-toggle=confirmation]').confirmation({
+		  rootSelector: '[data-toggle=confirmation]',
+		  title: '¿Estás seguro?',
+		  btnOkLabel: 'SI'
 		});
+		$('.btn-confirm').removeAttr('disabled');
 	</script>
 @stop

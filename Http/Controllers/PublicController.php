@@ -33,13 +33,17 @@ class PublicController extends AdminBaseController
     public function index()
     {
         $user = $this->auth->user();
-        $alerts=count($this->alert->getItemsBy((object)['status'=>0,'include'=>[],'take'=>null]));
+        $alerts=count($this->alert->getItemsBy((object)['filter'=>['status'=>0],'include'=>[],'take'=>null]));
+        $roleoperator=config('asgard.imonitor.config.roles.operator');
 
-        if ($this->auth->hasAccess('imonitor.products.index')) {
+        if ($this->auth->hasAccess('imonitor.products.create')) {
             $products = $this->product->paginate(12);
-        } else {
-            $products = $this->product->whereUser($user->id);
+        }
+        else if ($user->inRole($roleoperator)){
+            $products = $this->product->whereOperator($user->id);
 
+        }else{
+            $products = $this->product->whereUser($user->id);
         }
         return view('imonitor::frontend.products.index', compact('products','alerts'));
 
@@ -98,15 +102,6 @@ class PublicController extends AdminBaseController
         $this->alert->update($alert, ['status' => 1]);
         return redirect()->back()
             ->withSuccess(trans('core::core.messages.resource updated', ['name' => trans('imonitor::alerts.title.alerts')]));
-
-    }
-
-    public function email()
-    {
-        $alert = $this->alert->find(1);
-
-
-        return view('imonitor::frontend.emails.alert', compact('alert'));
 
     }
 
