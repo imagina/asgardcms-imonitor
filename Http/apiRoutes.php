@@ -17,54 +17,39 @@ $router->group(['prefix'=>'imonitor'],function (Router $router){
             'as' => 'imonitor.api.products.index',
             'uses' => 'ProductController@index',
         ]);
-        $router->get('/{param}', [
+        $router->get('{param}', [
             'as' => 'imonitor.api.products.show',
             'uses' => 'ProductController@show',
         ]);
 
-        $router->bind('aimonitorproduct', function ($id) {
-            return app(\Modules\Imonitor\Repositories\ProductRepository::class)->find($id);
-        });
-        $router->get('/', [
-            'as' => 'imonitor.api.products',
-            'uses' => 'ProductController@products',
-        ]);
-        $router->get('{imonitorproduct}', [
-            'as' => 'imonitor.api.product',
-            'uses' => 'ProductController@product',
-        ]);
         $router->post('/', [
-            'as' => 'imonitor.api.products.store',
-            'uses' => 'ProductController@store',
-            'middleware' => ['api.token','token-can:imonitor.products.create']
+            'as' => 'imonitor.api.products.create',
+            'uses' => 'ProductController@create',
+            'middleware' =>['auth:api']
         ]);
         $router->post('imonitorproduct', [
             'as' => 'imonitor.api.products.gallery.store',
             'uses' => 'ProductController@galleryStore',
-            'middleware' => ['api.token','token-can:imonitor.products.create']
+            'middleware' => ['auth:api']
         ]);
         $router->post('imonitorproduct/delete', [
             'as' => 'imonitor.api.products.gallery.delete',
             'uses' => 'ProductController@galleryDelete',
-            'middleware' => ['api.token','token-can:imonitor.products.create']
+            'middleware' => ['auth:api']
         ]);
         $router->put('{imonitorproduct}', [
             'as' => 'imonitor.api.products.update',
             'uses' => 'ProductController@update',
-            'middleware' =>['api.token','token-can:imonitor.products.edit']
+            'middleware' =>['auth:api']
         ]);
         $router->delete('{imonitorproduct}', [
             'as' => 'imonitor.api.products.delete',
             'uses' => 'ProductController@delete',
-            'middleware' => ['api.token','token-can:imonitor.products.destroy']
+            'middleware' => ['auth:api']
         ]);
     });
     $router->group(['prefix' => 'variables'], function (Router $router) {
 
-        $router->bind('imonitorerv', function ($id) {
-
-            return app(\Modules\Imonitor\Repositories\VariableRepository::class)->find($id);
-        });
 
         $router->get('/', [
             'as' => 'imonitor.api.variables.index',
@@ -135,6 +120,33 @@ $router->group(['prefix'=>'imonitor'],function (Router $router){
         $router->delete('{apimonitorrecord}', [
             'as' => 'imonitor.api.records.delete',
             'uses' => 'RecordController@delete',
+            'middleware' => ['auth:api','token-can:imonitor.variables.destroy']
+        ]);
+    });
+
+    $router->group(['prefix' => '/events'], function (Router $router) {
+
+        $router->get('/', [
+            'as' => 'imonitor.api.events.index',
+            'uses' => 'EventController@index',
+        ]);
+        $router->get('{apimonitorevents}', [
+            'as' => 'imonitor.api.events.show',
+            'uses' => 'EventController@show',
+        ]);
+        $router->post('/', [
+            'as' => 'imonitor.api.record.store',
+            'uses' => 'EventController@store',
+            'middleware' => ['auth:api']
+        ]);
+        $router->put('{api.monitor.events}', [
+            'as' => 'imonitor.api.events.update',
+            'uses' => 'EventController@update',
+            'middleware' =>['auth:api','token-can:imonitor.variables.edit']
+        ]);
+        $router->delete('{api.monitor.events}', [
+            'as' => 'imonitor.api.events.delete',
+            'uses' => 'EventController@delete',
             'middleware' => ['auth:api','token-can:imonitor.variables.destroy']
         ]);
     });

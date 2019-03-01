@@ -109,6 +109,7 @@ class ProductController extends AdminBaseController
     public function update(Product $product, UpdateProductRequest $request)
     {
 
+
         try{
             $this->product->update($product, $request->all());
 

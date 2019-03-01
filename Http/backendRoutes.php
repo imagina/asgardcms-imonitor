@@ -76,8 +76,6 @@ $router->group(['prefix' => '/imonitor'], function (Router $router) {
         ]);
 
     });
-
-
     $router->group(['prefix' => '/records'], function (Router $router) {
         $router->bind('record', function ($id) {
             return app('Modules\Imonitor\Repositories\RecordRepository')->find($id);
@@ -150,4 +148,39 @@ $router->group(['prefix' => '/imonitor'], function (Router $router) {
         ]);
     });
 
+    $router->group(['prefix' => 'events'], function (Router $router) {
+        $router->bind('event', function ($id) {
+            return app('Modules\Imonitor\Repositories\EventRepository')->find($id);
+        });
+        $router->get('{product_id}/index', [
+            'as' => 'admin.imonitor.event.index',
+            'uses' => 'EventController@index',
+            'middleware' => 'can:imonitor.events.index'
+        ]);
+        $router->get('/create', [
+            'as' => 'admin.imonitor.event.create',
+            'uses' => 'EventController@create',
+            'middleware' => 'can:imonitor.events.create'
+        ]);
+        $router->post('/', [
+            'as' => 'admin.imonitor.event.store',
+            'uses' => 'EventController@store',
+            'middleware' => 'can:imonitor.events.create'
+        ]);
+        $router->get('{event}/edit', [
+            'as' => 'admin.imonitor.event.edit',
+            'uses' => 'EventController@edit',
+            'middleware' => 'can:imonitor.events.edit'
+        ]);
+        $router->put('{event}', [
+            'as' => 'admin.imonitor.event.update',
+            'uses' => 'EventController@update',
+            'middleware' => 'can:imonitor.events.edit'
+        ]);
+        $router->delete('{event}', [
+            'as' => 'admin.imonitor.event.destroy',
+            'uses' => 'EventController@destroy',
+            'middleware' => 'can:imonitor.events.destroy'
+        ]);
+    });
 });

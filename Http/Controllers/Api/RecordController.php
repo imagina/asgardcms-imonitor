@@ -141,10 +141,12 @@ class RecordController extends BaseApiController
 
                     $maxValue=$product->variables->where('id',$request->variable_id)->first()->pivot->max_value;
                     $minValue=$product->variables->where('id',$request->variable_id)->first()->pivot->min_value;
-                    if($maxValue<$record->value || $minValue>$record->value){
-                       $alert=$this->alert->create(['product_id'=>$record->product_id,'record_id'=>$record->id, 'user_id'=>$product->user->id]);
-                    }
 
+                    if(!$product->maintenance) {
+                        if ($maxValue < $record->value || $minValue > $record->value) {
+                            $alert = $this->alert->create(['product_id' => $record->product_id, 'record_id' => $record->id, 'user_id' => $product->user->id]);
+                        }
+                    }
                     $status = 200;
                     $response = [
                         'susses' => [
@@ -331,5 +333,34 @@ class RecordController extends BaseApiController
 
         return response()->json($response, $status ?? 200);
     }
+
+      /**
+         * CREATE A ITEM
+         *
+         * @param Request $request
+         * @return mixed
+         */
+        public function create(Request $request)
+        {
+          \DB::beginTransaction();
+          try {
+            $data = $request->input('attributes') ?? [];//Get data
+            //Validate Request
+            $this->validateRequestApi(new CustomRequest($data));
+
+            //Create item
+            $dataEntity = $this->repoEntity->create($data);
+
+            //Response
+            $response = ["data" => new EntityTranformer($dataEntity)];
+            \DB::commit(); //Commit to Data Base
+          } catch (\Exception $e) {
+            \DB::rollback();//Rollback to Data Base
+            $status = $this->getStatusError($e->getCode());
+            $response = ["errors" => $e->getMessage()];
+          }
+          //Return response
+          return response()->json($response ?? ["data" => "Request successful"], $status ?? 200);
+        }
 
 }

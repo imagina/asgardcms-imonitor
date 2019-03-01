@@ -27,6 +27,7 @@ return [
         'password'=>'Password user product',
         'user assign'=>'Client Assign',
         'Product user'=>"User Product login",
+        'maintenance'=>"Maintenance"
     ],
     'messages' => [
     ],

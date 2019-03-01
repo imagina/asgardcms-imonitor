@@ -8,17 +8,31 @@
     <div id="content_show_imonitor" class="contaniner-imonitor">
         <div class="container">
             <!-- breadcrumb -->
-                @component('imonitor::frontend.widgets.breadcrumb')
-                    <li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span class="text-dark">Monitor</span></a></li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ $product->title }} </li>
-                @endcomponent
+            @component('imonitor::frontend.widgets.breadcrumb')
+                <li class="breadcrumb-item"><a href="{{ url('/monitor') }}"><span class="text-dark">Monitor</span></a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ $product->title }} </li>
+            @endcomponent
             <!-- END-breadcrumb -->
 
             <!-- TITLE -->
-                @component('imonitor::frontend.widgets.title')
-                    <div class="sub text-primary"> {{$product->title}} </div>
-                @endcomponent
+            @component('imonitor::frontend.widgets.title')
+                <div class="sub text-primary"> {{$product->title}} </div>
+            @endcomponent
             <!-- END-TITLE -->
+
+            @if(isset($event) && !empty($event))
+                @if(Auth::user()->hasAccess('imonitor.products.unique'))
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <div class="py-2 badge {{ $event->present()->valueLabelClass }}" data-toggle="tooltip" data-placement="top" title="{{ $event->present()->valueLabel }}" id="badge-push-event">
+                                <i class="fa fa-power-off" aria-hidden="true"></i>
+                                <span class="text-uppercase">{{ $event->present()->valueLabel }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
 
             <!-- GRAFICA_PRODUCT -->
             <div class="row">
@@ -30,18 +44,27 @@
                     <div id="highcharts" v-bind:class="{ 'load-vue': loading }"></div>
                 </div>
                 <div class="col-12 border-bottom border-top py-2">
-                    <button class="btn btn-secondary ml-1" type="button" data-toggle="collapse" data-target="#collapseHighcharts"
+                    <button class="btn btn-secondary ml-1" type="button" data-toggle="collapse"
+                            data-target="#collapseHighcharts"
                             aria-expanded="false" aria-controls="collapseHighcharts">
                         VER GRÁFICOS INDIVIDUALES
                     </button>
-                    <a class="btn btn-primary ml-1" href="{{route('imonitor.product.historic',$product->id)}}" data-toggle="tooltip" data-placement="top" title="Grafica tiempo Real">
+                    <a class="btn btn-primary ml-1" href="{{route('imonitor.product.historic',$product->id)}}"
+                       data-toggle="tooltip" data-placement="top" title="Grafica tiempo Real">
                         <i class="fa fa-area-chart text-white" aria-hidden="true"></i>
                         <span class="d-none d-md-inline-block text-white">Ver hitorial</span>
                     </a>
                     @if(Auth::user()->hasAccess('imonitor.products.unique'))
-                        <button onclick="window.open('{{ route('imonitor.product.unique',$product->id) }}','newwindow'+{{$product->id}},'width=500,height=500');return false;" class="btn btn-orange-10 ml-1">
+                        <button onclick="window.open('{{ route('imonitor.product.unique',$product->id) }}','newwindow'+{{$product->id}},'width=500,height=500');return false;"
+                                class="btn btn-orange-10 ml-1">
                             <i class="fa fa-window-restore" aria-hidden="true"></i>
                             <span class="d-none d-md-inline-block">Abrir ventana</span>
+                        </button>
+                    @endif
+                    @if(Auth::user()->hasAccess('imonitor.products.unique'))
+                        <button class="btn btn-danger ml-1" v-on:click="sendMensaje()" :disabled="loadingMsg">
+                            <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                            <span class="d-none d-md-inline-block">Mensaje</span>
                         </button>
                     @endif
                 </div>
@@ -49,12 +72,11 @@
             <!-- END-GRAFICA_PRODUCT -->
 
             <!-- GRAFICA_POR_SERIES_DEL_PRODUCT -->
-                <div class="row collapse" id="collapseHighcharts"></div>
+            <div class="row collapse" id="collapseHighcharts"></div>
             <!-- END-GRAFICA_POR_SERIES_DEL_PRODUCT -->
 
-
             <!-- DESCRIPTION_PRODUCT -->
-                @include('imonitor::frontend.widgets.description')
+            @include('imonitor::frontend.widgets.description')
             <!-- DESCRIPTION_PRODUCT -->
         </div>
     </div>
@@ -69,14 +91,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     <script>
-        var notificacion = {{ Auth::user()->hasAccess('imonitor.alerts.index') }};
-        
+
+        var notificacion = 0;
+        @if (Auth::check())
+            @if(Auth::user()->hasAccess('imonitor.alerts.index'))
+                notificacion = 1;
+            @endif
+        @endif
+
         $(document).ready(function () {
             ['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
                 document.getElementById('collapseHighcharts').addEventListener(
                     eventType,
                     function (e) {
-                        var chart,point,i,event;
+                        var chart, point, i, event;
 
                         for (i = 0; i < Highcharts.charts.length; i = i + 1) {
                             chart = Highcharts.charts[i];
@@ -111,6 +139,7 @@
                 this.series.chart.xAxis[0].drawCrosshair(event, this); // Show the crosshair
             };
         });
+
         /**
          * Synchronize zooming through the setExtremes event handler.
          */
@@ -125,7 +154,7 @@
                                 e.max,
                                 undefined,
                                 false,
-                                { trigger: 'syncExtremes' }
+                                {trigger: 'syncExtremes'}
                             );
                         }
                     }
@@ -139,6 +168,8 @@
             el: "#content_show_imonitor",
             data: {
                 loading: true,
+                loadingMsg: false,
+                maintenance: {{ $product->maintenance }},
                 series: {!! json_encode($product->variables) !!},
                 product_id: {{ $product->id }},
                 dataChart: {
@@ -153,10 +184,22 @@
             },
             methods: {
                 getDateChart: function () {
+
                     this.renderChart();
+
                     Echo.channel('record-' + this.product_id)
                         .listen('.newRecord', (message) => {
                             this.pushRecord(message[0]);
+                        });
+
+                    Echo.channel('product-' + this.product_id)
+                        .listen('.product', (message) => {
+                            this.pushProduct(message[0]);
+                        });
+
+                    Echo.channel('event-' + this.product_id)
+                        .listen('.newEvent', (message) => {
+                            this.pushEvent(message[0]);
                         });
                 },
                 renderChart: function () {
@@ -172,7 +215,7 @@
 
                         document.getElementById('collapseHighcharts').appendChild(chartContainer);
 
-                        subtitle = "max:"+this.series[index].pivot.max_value + "| min:"+this.series[index].pivot.min_value;
+                        subtitle = "max:" + this.series[index].pivot.max_value + "| min:" + this.series[index].pivot.min_value;
 
                         // LOS LIMITES DEL EJEX Y
                         var plotLines = [{
@@ -181,26 +224,26 @@
                             dashStyle: 'shortdash',
                             width: 1,
                             zIndex: 3,
-                            label: { text: 'Valor mínimo: '+this.series[index].pivot.min_value }
+                            label: {text: 'Valor mínimo: ' + this.series[index].pivot.min_value}
                         }, {
                             value: this.series[index].pivot.max_value,
                             color: 'red',
                             dashStyle: 'shortdash',
                             width: 1,
                             zIndex: 3,
-                            label: { text: 'Valor máximo:'+this.series[index].pivot.min_value }
+                            label: {text: 'Valor máximo:' + this.series[index].pivot.min_value}
                         }]
 
                         // GENERAR LA GRAFICA DE LA SERIE
                         this.seriesChart[index].chart = this.Highcharts(element.title,
-                                                                        subtitle,
-                                                                        chartContainer,
-                                                                        [{ name: element.title, id: element.id, data: [] }],
-                                                                        plotLines
-                                                                    );
+                            subtitle,
+                            chartContainer,
+                            [{name: element.title, id: element.id, data: []}],
+                            plotLines
+                        );
                     });
 
-                    this.dataChart.chart = this.Highcharts(this.dataChart.title, null, 'highcharts',this.dataChart.data,null);
+                    this.dataChart.chart = this.Highcharts(this.dataChart.title, null, 'highcharts', this.dataChart.data, null);
 
                     this.loading = false;
                 },
@@ -210,8 +253,7 @@
                         created_at = +moment(record.created_at);
 
                     this.dataChart.data.forEach((value, index) => {
-                        if (value.id == record.variable_id) 
-                        {
+                        if (value.id == record.variable_id) {
 
                             time = this.formatDatetime(record.created_at);
 
@@ -223,19 +265,18 @@
 
                             if (parseFloat(record.value) > this.series[index].pivot.max_value || parseFloat(record.value) < this.series[index].pivot.min_value) {
 
-                                length = this.dataChart.chart.series[index].points.length-1;
+                                length = this.dataChart.chart.series[index].points.length - 1;
 
                                 var point = this.dataChart.chart.series[index].points[length];
 
-                                length = this.seriesChart[index].chart.series[0].points.length-1;
+                                length = this.seriesChart[index].chart.series[0].points.length - 1;
 
                                 var pointSerie = this.seriesChart[index].chart.series[0].points[length];
 
                                 var type = parseFloat(record.value) > this.series[index].pivot.max_value ? 'máximo' : 'mínimo';
-                                
-                                if(notificacion)
-                                {   
-                                    toastr.error('Linea <span class="value">' + this.series[index].title + '</span> arrojo un valor '+type+' de <span class="value">' + parseFloat(record.value)+'</span><a href="'+route_historic+'?alert='+record.created_at+'" class="d-block">Ir al historial</a>');
+
+                                if (notificacion && !this.maintenance) {
+                                    toastr.error('Linea <span class="value">' + this.series[index].title + '</span> arrojo un valor ' + type + ' de <span class="value">' + parseFloat(record.value) + '</span><a href="' + route_historic + '?alert=' + record.created_at + '" class="d-block">Ir al historial</a>');
                                 }
 
                                 point.update(optionAlert);
@@ -244,8 +285,18 @@
                         }
                     });
                 },
-                Highcharts: function (title,subtitle,chartContainer,series,plotLines)
-                {
+                pushProduct: function(product) {
+                    this.maintenance = product.maintenance;
+                },
+                pushEvent: function(event) {
+                    var badge = $('#badge-push-event');
+                    console.log(event);
+                    if(badge.hasClass('bg-green'))
+                        badge.removeClass('bg-green').addClass('bg-red').find('span').text('APAGADO');
+                    else
+                        badge.removeClass('bg-red').addClass('bg-green').find('span').text('ENCENDIDO');
+                },
+                Highcharts: function (title, subtitle, chartContainer, series, plotLines) {
                     return Highcharts.chart(chartContainer, {
                         chart: {
                             type: 'spline',
@@ -263,17 +314,16 @@
                             tickAmount: 24,
                             type: 'datetime',
                             dateTimeLabelFormats:
-                            {
-                                second: '%H:%M:%S',
-                                minute: '%H:%M',
-                                hour: '%H:%M',
-                                month: '%b \'%y',
-                                day: '%e. %b',
-                                year: '%Y',
-                            },
-                            labels: {
-                                formatter: function()
                                 {
+                                    second: '%H:%M:%S',
+                                    minute: '%H:%M',
+                                    hour: '%H:%M',
+                                    month: '%b \'%y',
+                                    day: '%e. %b',
+                                    year: '%Y',
+                                },
+                            labels: {
+                                formatter: function () {
                                     return moment(new Date(this.value)).format('DD/MM/YY HH:mm:ss');
                                 },
                             },
@@ -281,7 +331,7 @@
                         },
                         tooltip: {
                             formatter: function () {
-                                return '<b>'+this.series.name+'</b><br>valor: '+this.y+'<br><small>' + moment(new Date(this.x)).format('DD/MM/YY HH:mm:ss')+'</small>';
+                                return '<b>' + this.series.name + '</b><br>valor: ' + this.y + '<br><small>' + moment(new Date(this.x)).format('DD/MM/YY HH:mm:ss') + '</small>';
                             },
                         },
                         yAxis: {
@@ -291,32 +341,48 @@
                         series: series
                     });
                 },
-                formatDatetime: function (datetime)
-                {
+                formatDatetime: function (datetime) {
                     return Date.parse(new Date(datetime));
+                },
+                sendMensaje: function () {
+                    this.loadingMsg = true;
+                    axios.post('{{ route('imonitor.product.alert.client', $product->id) }}')
+                        .then(response => {
+                            console.log(response);
+                            if (response.data.status != "error")
+                                toastr.success('Mensaje enviado', {timeOut: 5000});
+                            else
+                                toastr.error('Por favor intente más tarde', 'Ocurrio algo!', {timeOut: 5000});
+                        }).finally(() => {
+                        this.loadingMsg = false;
+                    })
                 }
             }
         });
-    
-        function prueba_notificacion() {
-            if (Notification) {
-                if (Notification.permission !== "granted") {
-                    Notification.requestPermission()
-                }
-                var title = "Xitrus"
-                var extra = {
-                    icon: "http://xitrus.es/imgs/logo_claro.png",
-                    body: "Notificación de prueba en Xitrus"
-                }
-                var noti = new Notification( title, extra)
-                noti.onclick = {
-                // Al hacer click
-                }
-                noti.onclose = {
-                // Al cerrar
-                }
-                setTimeout( function() { noti.close() }, 10000)
-            }
-        }
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
     </script>
+
+    <style>
+        .badge {
+            font-size: 19px;
+            cursor: default;
+        }
+
+        .bg-red {
+            color: #fff;
+            background-color: #dc3545;
+        }
+        .bg-red .fa-power-off
+        {
+            transform: rotate(180deg);
+        }
+
+        .bg-green {
+            color: #fff;
+            background-color: #28a745;
+        }
+    </style>
 @stop

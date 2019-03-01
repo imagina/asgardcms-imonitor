@@ -4,11 +4,14 @@ namespace Modules\Imonitor\Http\Requests;
 
 use Modules\Core\Internationalisation\BaseFormRequest;
 
-class CreateRecordRequest extends BaseFormRequest
+class CreateEventRequest extends BaseFormRequest
 {
     public function rules()
     {
-        return [];
+        return [
+            'name'=>'required',
+            'product_id'=>'required'
+        ];
     }
 
     public function translationRules()
@@ -24,7 +27,8 @@ class CreateRecordRequest extends BaseFormRequest
     public function messages()
     {
         return [
-
+            'name.required' => trans('imonitor::events.messages.name is required'),
+            'produtc_id.required' => trans('imonitor::events.messages.product is required'),
         ];
     }
 

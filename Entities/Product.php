@@ -13,7 +13,7 @@ class Product extends Model
 
     protected $table = 'imonitor__products';
     public $translatedAttributes = ['title','description'];
-    protected $fillable = ['title','description','address','variable_id','user_id','product_user_id', 'operator_id'];
+    protected $fillable = ['title','description','address','variable_id','user_id','product_user_id','maintenance','operator_id'];
     protected $fakeColumns = ['options'];
 
     protected $cast = [
@@ -51,7 +51,10 @@ class Product extends Model
     public function getAlersativesAttribute(){
         return $this->alerts->where('status',0)->all();
     }
-
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
     /**
      * Magic Method modification to allow dynamic relations to other entities.
      * @var $value

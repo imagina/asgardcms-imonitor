@@ -35,7 +35,7 @@ class AlertController extends AdminBaseController
      */
     public function index($product)
     {
-        $alerts = $this->alert->getItemsBy((object)['product_id'=>$product,'take'=>300, 'include'=>[]]);
+        $alerts = $this->alert->getItemsBy((object)['product_id'=>$product,'take'=>400, 'include'=>[], 'order'=>(object)['field' =>'created_at','way'=>'desc']]);
         $product = $this->product->find($product);
         return view('imonitor::admin.alerts.index', compact('alerts','product'));
     }

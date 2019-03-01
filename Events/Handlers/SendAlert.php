@@ -27,15 +27,18 @@ class SendAlert
     {
         $alert = $event->entity;
         $product=$alert->product;
-        $subject = trans("imonitor::alerts.messages.subject")." ".$product->title." ".trans('imonitor::variables.title.variables').":".$alert->record->variable->title."-".$alert->record->created_at;
-        $view = "imonitor::frontend.emails.alert";
+        if(!$product->mainenance){
+            $subject = trans("imonitor::alerts.messages.subject")." ".$product->title." ".trans('imonitor::variables.title.variables').":".$alert->record->variable->title."-".$alert->record->created_at;
+            $view = "imonitor::frontend.emails.alert";
 
 
-        $this->mail->to($product->operator->email??'Info@imonotor.im')->send(new Alert($alert,$subject,$view));
+            $this->mail->to($product->operator->email??'Info@imonotor.im')->send(new Alert($alert,$subject,$view));
 
-        $email_to = $this->setting->get('imonitor::adminEmail')!==null? explode(',', $this->setting->get('imonitor::adminEmail')):env('MAIL_FROM_ADDRESS');
+            $email_to = $this->setting->get('imonitor::adminEmail')!==null? explode(',', $this->setting->get('imonitor::adminEmail')):env('MAIL_FROM_ADDRESS');
 
-        $this->mail->to($email_to)->send(new Alert($alert,$subject,$view));
+            $this->mail->to($email_to)->send(new Alert($alert,$subject,$view));
+        }
+
 
     }
 }

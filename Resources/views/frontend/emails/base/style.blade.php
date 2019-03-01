@@ -34,7 +34,6 @@
     background-color: #252525;
     color: white;
   }
-  
   footer .copyright {
     color: #e2e2e2;
     font-size: 14px;
@@ -45,6 +44,16 @@
     padding: 10px 20px;
   }
   
+  .downloader .stripe,
+  .downloader footer
+  {
+    background-color: #31313F !important;
+  }
+  .downloader footer .contacto
+  {
+    background-color: transparent;
+  }
+
   /********* form ************/
   .btn-requirement {
     padding: 25px 0;
@@ -147,10 +156,16 @@
   }
 
   .btn-danger {
-      color: #fff;
-      background-color: #dc3545;
-      border-color: #dc3545;
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
   }
+  .btn-primary {
+    color: #fff;
+    background-color: #fa7f0e;
+    border-color: #fa7f0e;
+  }
+
   .btn {
       text-decoration: none;
       display: inline-block;

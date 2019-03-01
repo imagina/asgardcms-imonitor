@@ -27,9 +27,11 @@ return [
         'edit' => 'imonitor::alerts.edit resource',
         'destroy' => 'imonitor::alerts.destroy resource',
     ],
+    'imonitor.events' => [
+        'index' => 'imonitor::events.list resource',
+        'create' => 'imonitor::events.create resource',
+        'edit' => 'imonitor::events.edit resource',
+        'destroy' => 'imonitor::events.destroy resource',
+    ],
 // append
-
-
-
-
 ];

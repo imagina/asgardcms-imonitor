@@ -15,6 +15,19 @@
                 @endcomponent
             <!-- END-TITLE -->
 
+            @if(isset($event) && !empty($event))
+                @if(Auth::user()->hasAccess('imonitor.products.unique'))
+                    <div class="row">
+                        <div class="col-12 text-right">
+                            <div class="py-2 badge {{ $event->present()->valueLabelClass }}" data-toggle="tooltip" data-placement="top" title="{{ $event->present()->valueLabel }}" id="badge-push-event">
+                                <i class="fa fa-power-off" aria-hidden="true"></i>
+                                <span class="text-uppercase">{{ $event->present()->valueLabel }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
+
             <!-- GRAFICA_PRODUCT -->
             <div class="row">
                 <div class="col-12">
@@ -41,6 +54,12 @@
                             </span>
                         </a>
                     @endif
+                    @if(Auth::user()->hasAccess('imonitor.products.unique'))
+                        <button class="btn btn-danger ml-1" v-on:click="sendMensaje()" :disabled="loadingMsg">
+                            <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                            <span class="d-none d-md-inline-block">Mensaje</span>
+                        </button>
+                    @endif
 	           	</div>
             </div>
             <!-- END-GRAFICA_PRODUCT -->
@@ -62,6 +81,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
+
+        var notificacion = 0;
+        @if (Auth::check())
+            @if(Auth::user()->hasAccess('imonitor.alerts.index'))
+                notificacion = 1;
+            @endif
+        @endif
+
         $(document).ready(function () {
             ['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
                 document.getElementById('collapseHighcharts').addEventListener(
@@ -125,6 +152,8 @@
             el: "#content_show_imonitor",
             data: {
                 loading: true,
+                loadingMsg: false,
+                maintenance: {{ $product->maintenance }},
                 series: {!! json_encode($product->variables) !!},
                 product_id: {{ $product->id }},
                 dataChart: {
@@ -143,6 +172,16 @@
                     Echo.channel('record-' + this.product_id)
                         .listen('.newRecord', (message) => {
                             this.pushRecord(message[0]);
+                        });
+
+                    Echo.channel('product-' + this.product_id)
+                        .listen('.product', (message) => {
+                            this.pushProduct(message[0]);
+                        });
+
+                    Echo.channel('event-' + this.product_id)
+                        .listen('.newEvent', (message) => {
+                            this.pushEvent(message[0]);
                         });
                 },
                 renderChart: function () {
@@ -179,11 +218,11 @@
 
                         // GENERAR LA GRAFICA DE LA SERIE
                         this.seriesChart[index].chart = this.Highcharts(element.title,
-                                                                        subtitle,
-                                                                        chartContainer,
-                                                                        [{ name: element.title, id: element.id, data: [] }],
-                                                                        plotLines
-                                                                    );
+                            subtitle,
+                            chartContainer,
+                            [{name: element.title, id: element.id, data: []}],
+                            plotLines
+                        );
                     });
 
                     this.dataChart.chart = this.Highcharts(this.dataChart.title, null, 'highcharts',this.dataChart.data,null);
@@ -218,9 +257,9 @@
                                 var pointSerie = this.seriesChart[index].chart.series[0].points[length];
 
                                 var type = parseFloat(record.value) > this.series[index].pivot.max_value ? 'máximo' : 'mínimo';
-                                if(notificacion)
-                                {   
-                                    toastr.error('Linea <span class="value">' + this.series[index].title + '</span> arrojo un valor '+type+' de <span class="value">' + parseFloat(record.value)+'</span><a href="'+route_historic+'?alert='+record.created_at+'" class="d-block">Ir al historial</a>');
+
+                                if (notificacion && !this.maintenance) {
+                                    toastr.error('Linea <span class="value">' + this.series[index].title + '</span> arrojo un valor ' + type + ' de <span class="value">' + parseFloat(record.value) + '</span><a href="' + route_historic + '?alert=' + record.created_at + '" class="d-block">Ir al historial</a>');
                                 }
 
                                 point.update(optionAlert);
@@ -228,6 +267,17 @@
                             }
                         }
                     });
+                },
+                pushProduct: function(product) {
+                    this.maintenance = product.maintenance;
+                },
+                pushEvent: function(event) {
+                    var badge = $('#badge-push-event');
+                    console.log(event);
+                    if(badge.hasClass('bg-green'))
+                        badge.removeClass('bg-green').addClass('bg-red').find('span').text('APAGADO');
+                    else
+                        badge.removeClass('bg-red').addClass('bg-green').find('span').text('ENCENDIDO');
                 },
                 Highcharts: function (title,subtitle,chartContainer,series,plotLines)
                 {
@@ -279,8 +329,46 @@
                 formatDatetime: function (datetime)
                 {
                     return Date.parse(new Date(datetime));
+                },
+                sendMensaje: function () {
+                    this.loadingMsg = true;
+                    axios.post('{{ route('imonitor.product.alert.client', $product->id) }}')
+                        .then(response => {
+                            console.log(response);
+                            if (response.data.status != "error")
+                                toastr.success('Mensaje enviado', {timeOut: 5000});
+                            else
+                                toastr.error('Por favor intente más tarde', 'Ocurrio algo!', {timeOut: 5000});
+                        }).finally(() => {
+                        this.loadingMsg = false;
+                    })
                 }
             }
         });
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
     </script>
+
+    <style>
+        .badge {
+            font-size: 19px;
+            cursor: default;
+        }
+
+        .bg-red {
+            color: #fff;
+            background-color: #dc3545;
+        }
+        .bg-red .fa-power-off
+        {
+            transform: rotate(180deg);
+        }
+
+        .bg-green {
+            color: #fff;
+            background-color: #28a745;
+        }
+    </style>
 @stop

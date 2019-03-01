@@ -19,7 +19,8 @@ return [
     'form' => [
     ],
     'messages' => [
-        'subject'=> 'Device alert'
+        'subject'=> 'Device alert',
+        'subject Client'=> "the :product product is generating an alert"
     ],
     'validation' => [
     ],

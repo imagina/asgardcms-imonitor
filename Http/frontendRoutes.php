@@ -9,7 +9,6 @@ $router->group(['prefix' =>'/monitor'], function (Router $router) {
         'uses' => 'PublicController@index',
         'middleware' => 'can:imonitor.records.index'
     ]);
-
     $router->get('/alerts', [
         'as' => 'imonitor.alerts.index',
         'uses' => 'PublicController@alerts',
@@ -30,17 +29,24 @@ $router->group(['prefix' =>'/monitor'], function (Router $router) {
         'uses' => 'PublicController@alertProduct',
         'middleware' => 'can:imonitor.alerts.index'
     ]);
-
+    $router->post('{product}/alerts/client',[
+        'as' => 'imonitor.product.alert.client',
+        'uses' => 'PublicController@alertClient',
+        'middlewate'  =>  'can:imonitor.alerts.index'
+    ]);
     $router->post('/alerts/{id}', [
         'as' => 'imonitor.alert.update',
         'uses' => 'PublicController@completeAlert',
         'middleware' => 'can:imonitor.alerts.edit'
     ]);
-
     $router->get('/{product}/unique', [
         'as' => 'imonitor.product.unique',
         'uses' => 'PublicController@unique',
         'middleware' => 'can:imonitor.products.unique'
     ]);
-
+    $router->get('{product}/historic/export',[
+        'as' => 'imonitor.product.historic.export',
+        'uses' => 'PublicController@historicExport'
+        // 'middlewate'  =>  'can:imonitor.export.products'
+    ]);
 });
